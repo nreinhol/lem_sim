@@ -1,0 +1,6 @@
+# local package
+-e .
+
+# external requirements
+click==6.7
+scipy==1.2.1
