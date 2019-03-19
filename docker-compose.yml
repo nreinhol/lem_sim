@@ -3,8 +3,8 @@ version: "3"
 services:
   ganache:
     image: trufflesuite/ganache-cli:v6.4.1 
-    expose:
-      - "8545"
+    ports:
+      - "8545:8545"
     command: ["-a 2", "-e 10"]
   agents:
     build: .
