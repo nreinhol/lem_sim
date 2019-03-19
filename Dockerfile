@@ -5,4 +5,4 @@ WORKDIR ./app
 
 RUN pip3 install -r requirements.txt
 
-CMD [ "python", "./src/lem_sim/simulate.py" ]
+CMD [ "python", "./src/lem_sim/simulate.py --connection=docker" ]
