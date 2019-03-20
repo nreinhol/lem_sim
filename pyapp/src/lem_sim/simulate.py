@@ -1,49 +1,37 @@
 from lem_sim import agent
 from lem_sim import linear_optimization as lp
+from lem_sim import communication
 
-from web3 import Web3, HTTPProvider
-from scipy.optimize import linprog
-import time
-import click 
+import click
 
 
 @click.command()
 @click.option('--connection', type=click.Choice(['docker', 'port']))
 def main(connection):
+    web3 = communication.get_network_connection(connection)
 
-    if(connection == 'docker'):
-        address = 'HTTP://ganache:8545'
-        time.sleep(10)
-    elif(connection == 'port'):
-        address = 'HTTP://0.0.0.0:8545'
-    else:
-        click.secho('No connection address specified!', fg='red')
-        quit()
-
-    #connection to local blockchain
-    web3 = Web3(HTTPProvider(address))
-
-    #get all existing accounts 
+    # get all existing accounts
     accounts = web3.eth.accounts
 
-    #instantiate agents and assign accounts
+    # instantiate agents and assign accounts
     agents_list = []
     for account in accounts:
         agents_list.append(agent.Agent(account, web3))
 
-    #create optimization problem
+    # create optimization problem
     target_coefs = [-1, -2, -1, -3]
     constraint_coefs = [[2, 0, 1, 1], [1, 0, 3, 1], [0, 2, 2, 1], [0, 3, 1, 1]]
     constraint_bounds = [4, 9, 8, 5]
     central_problem = lp.OptimizationProblem(target_coefs, constraint_coefs, constraint_bounds)
 
-    #get two specific agents out of list
+    # get two specific agents out of list
     agent_one = agents_list[0]
     agent_two = agents_list[1]
 
     print('balance before tx: {}'.format(agent_two.balance))
     agent_one.send_transaction(agent_two.account_address, 1000000000000000000)
     print('balance after tx: {}'.format(agent_two.balance))
+
 
 if __name__ == '__main__':
     main()
