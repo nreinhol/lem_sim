@@ -1,5 +1,3 @@
-AMOUNT_AGENTS = None
-AMOUNT_AGENTS_VARIABLES = None
 
 target_coefs = [-1, -2, -1, -3]
 
@@ -11,3 +9,8 @@ def chunks(l, n):
 
 for chunk in chunks(target_coefs, 2):
     print(chunk)
+
+
+def decompose(OptimizationProblem, AMOUNT_AGENTS):
+        
+        return 
