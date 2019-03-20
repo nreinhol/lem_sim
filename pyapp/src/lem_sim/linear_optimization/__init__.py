@@ -1,1 +1,1 @@
-from .optimization_problem import OptimizationProblem
+from .optimization_problem import OptimizationProblem  # noqa
