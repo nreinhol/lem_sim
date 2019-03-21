@@ -1,1 +1,1 @@
-from .global_variables import GlobalVariables  # noqa
+from .variables import Variables  # noqa

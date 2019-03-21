@@ -44,4 +44,4 @@ simulate:
 	@$(PYTHON_INTERPRETER) src/$(PROJECT_NAME)/simulate.py --connection=port
 
 test:
-	@$(PYTHON_INTERPRETER) src/$(PROJECT_NAME)/linear_optimization/decompose.py --connection=port
+	@$(PYTHON_INTERPRETER) src/$(PROJECT_NAME)/linearoptimization/decompose.py --connection=port

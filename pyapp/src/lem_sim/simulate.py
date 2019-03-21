@@ -7,7 +7,7 @@ import click
 @click.command()
 @click.option('--connection', type=click.Choice(['docker', 'port']))
 def main(connection):
-    global_vars = mem.GlobalVariables(connection)
+    variables = mem.Variables(connection)
     
     # create optimization problem
     target_coefs = [-1, -2, -1, -3]
@@ -16,8 +16,8 @@ def main(connection):
     central_problem = lp.OptimizationProblem(target_coefs, constraint_coefs, constraint_bounds)
 
     # get two specific agents out of list
-    agent_one = global_vars.agents_list[0]
-    agent_two = global_vars.agents_list[1]
+    agent_one = variables.agent_pool[0]
+    agent_two = variables.agent_pool[1]
 
     print('balance before tx: {}'.format(agent_two.balance))
     agent_one.send_transaction(agent_two.account_address, 1000000000000000000)

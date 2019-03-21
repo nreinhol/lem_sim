@@ -2,12 +2,12 @@ from lem_sim import communication
 from lem_sim import agent
 
 
-class GlobalVariables():
+class Variables():
 
     def __init__(self, connection):
         self._web3 = communication.get_network_connection(connection)
         self._accounts = self._web3.eth.accounts
-        self._agents_list = self.agent_factory()
+        self._agent_pool = self.agent_factory()
     
     @property
     def web3(self):
@@ -18,11 +18,11 @@ class GlobalVariables():
         return self._accounts
 
     @property
-    def agents_list(self):
-        return self._agents_list
+    def agent_pool(self):
+        return self._agent_pool
     
     def agent_factory(self):
-        agents_list = []
+        agent_pool = []
         for account in self._accounts:
-            agents_list.append(agent.Agent(account, self._web3))
-        return agents_list     
+            agent_pool.append(agent.Agent(account, self._web3))
+        return agent_pool     
