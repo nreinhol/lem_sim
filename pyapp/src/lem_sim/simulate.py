@@ -5,10 +5,10 @@ import click
 
 
 @click.command()
-@click.option('--connection', type=click.Choice(['docker', 'port']))
+@click.option('--connection', type=click.Choice(['docker', 'ip']))
 def main(connection):
     variables = mem.Variables(connection)
-    
+
     # create optimization problem
     target_coefs = [-1, -2, -1, -3]
     constraint_coefs = [[2, 0, 1, 1], [1, 0, 3, 1], [0, 2, 2, 1], [0, 3, 1, 1]]

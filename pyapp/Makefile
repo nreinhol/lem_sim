@@ -41,7 +41,7 @@ endif
 #################################################################################
 
 simulate:
-	@$(PYTHON_INTERPRETER) src/$(PROJECT_NAME)/simulate.py --connection=port
+	@$(PYTHON_INTERPRETER) src/$(PROJECT_NAME)/simulate.py --connection=ip
 
 test:
-	@$(PYTHON_INTERPRETER) src/$(PROJECT_NAME)/linearoptimization/decompose.py --connection=port
+	@$(PYTHON_INTERPRETER) src/$(PROJECT_NAME)/linearoptimization/decompose.py --connection=ip
