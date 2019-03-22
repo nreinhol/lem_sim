@@ -1,7 +1,7 @@
 from scipy.optimize import linprog
 
 
-class OptimizationProblem():
+class OptimizationProblem:
 
     def __init__(self, target_coefs, constraint_coefs, constraint_bounds):
         self._target_coefs = target_coefs

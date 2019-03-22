@@ -8,6 +8,7 @@ class Variables():
         self._web3 = communication.get_network_connection(connection)
         self._accounts = self._web3.eth.accounts
         self._agent_pool = self.agent_factory()
+        self._amount_agents = len(self._agent_pool)
 
     @property
     def web3(self):
@@ -20,6 +21,10 @@ class Variables():
     @property
     def agent_pool(self):
         return self._agent_pool
+
+    @property
+    def amount_agents(self):
+        return self._amount_agents
 
     def agent_factory(self):
         agent_pool = []
