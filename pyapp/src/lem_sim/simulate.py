@@ -8,6 +8,8 @@ import click
 @click.option('--connection', type=click.Choice(['docker', 'ip']))
 def main(connection):
     variables = mem.Variables(connection)
+    central_problem = lp.CentralProblem()
+    lp.decompose(central_problem, variables)
 
     '''
     # get two specific agents out of list
