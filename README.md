@@ -10,7 +10,7 @@ LEM, also called microgrid energy markets, consist of small scale prosumers, con
 ![](.img/platform_architecture.png)
 
 ## Requirements
-* Docker
+* Docker v.18
 
 ## Installation
 ```
