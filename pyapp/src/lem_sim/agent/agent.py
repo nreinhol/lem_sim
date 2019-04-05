@@ -1,7 +1,7 @@
 from lem_sim import linearoptimization as lp
 
 
-class Agent():
+class Agent(object):
 
     def __init__(self, account_address, provider):
         self._account_address = account_address
