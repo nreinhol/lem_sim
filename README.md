@@ -8,3 +8,17 @@ LEM, also called microgrid energy markets, consist of small scale prosumers, con
 ## Architecture
 
 ![](.img/platform_architecture.png)
+
+## Requirements
+* Docker
+
+## Installation
+```
+git clone https://github.com/nreinhol/lem_sim
+```
+
+## Run
+```
+cd /path/to/lem_sim
+docker-compose up
+```
