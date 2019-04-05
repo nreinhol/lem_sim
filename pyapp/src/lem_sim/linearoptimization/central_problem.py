@@ -1,10 +1,10 @@
 import numpy as np
 
 
-class CentralProblem:
+class CentralProblem(object):
 
     def __init__(self):
-        self._target_coefs = np.array([1, -2, -1, -3])  # cost vectors
+        self._target_coefs = np.array([-1, -2, -1, -3])  # cost vectors
         self._individual_resources = np.array([4, 9])  # individual resources
         self._shared_resources = np.array([8, 5])  # shared resources
         self._individual_coefs = np.array([[2, 1, 0, 0], [0, 0, 2, 3]])  # individual coefficients
