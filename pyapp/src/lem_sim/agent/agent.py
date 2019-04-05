@@ -1,12 +1,9 @@
-from lem_sim import linearoptimization as lp
-
-
 class Agent(object):
 
     def __init__(self, account_address, provider):
         self._account_address = account_address
         self._provider = provider
-        self._optimization_problem = lp.OptimizationProblem(None, None, None)
+        self._optimization_problem = None
 
     @property
     def account_address(self):

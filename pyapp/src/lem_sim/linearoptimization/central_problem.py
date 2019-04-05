@@ -29,3 +29,10 @@ class CentralProblem(object):
     @property
     def shared_coefs(self):
         return self._shared_coefs
+
+    def show(self):
+        print('Target Coefficients:\n', self._target_coefs)
+        print('Individual Coefficients:', *self._individual_coefs, sep='\n')
+        print('Individual Resources:\n', self._individual_resources)
+        print('Shared Coefficients:', *self._shared_coefs, sep='\n')
+        print('Shared Resources:\n', self._shared_resources)

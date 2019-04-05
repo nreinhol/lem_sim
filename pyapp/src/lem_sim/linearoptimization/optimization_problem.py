@@ -35,3 +35,8 @@ class OptimizationProblem(object):
     def solve(self):
         result = linprog(self._target_coefs, A_ub=self._constraint_coefs, b_ub=self._constraint_bounds)
         return result
+
+    def show(self):
+        print('Target Coefficients:\n', self._target_coefs)
+        print('Constraint Coefficients:', *self._constraint_coefs, sep='\n')
+        print('Constraint Bounds:\n', self._constraint_bounds)
