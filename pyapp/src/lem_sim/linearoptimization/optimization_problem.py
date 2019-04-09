@@ -1,4 +1,5 @@
 from scipy.optimize import linprog
+import numpy as np
 
 
 class OptimizationProblem(object):
@@ -31,8 +32,10 @@ class OptimizationProblem(object):
         return self._shared_coefs
 
     def solve(self):
-        result = linprog(self._target_coefs, A_ub=self._constraint_coefs, b_ub=self._constraint_bounds)
-        return result
+        constraint_coefs = np.concatenate((self._individual_coefs, self._shared_coefs))
+        constraint_resources = np.concatenate((self._individual_resources, self._shared_resources))
+
+        return linprog(self._target_coefs, constraint_coefs, constraint_resources)
 
     def show(self):
         print('Target Coefficients:\n', self._target_coefs)
