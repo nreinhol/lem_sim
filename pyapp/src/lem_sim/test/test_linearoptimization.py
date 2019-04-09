@@ -28,12 +28,6 @@ class LinearOptimizationTest(unittest.TestCase):
 
         self.assertTrue(np.array_equal(splitted_constraint_coefs[0], array))
 
-    def test_remove_zero_rows_of_array(self):
-        array = np.array([[2, 1], [0, 0], [1, 3], [1, 1]])
-        array = lp.remove_zero_rows_of_array(array)
-
-        self.assertTrue(np.array_equal(array, np.array([[2, 1], [1, 3], [1, 1]])))
-
 
 if __name__ == '__main__':
     unittest.main()
