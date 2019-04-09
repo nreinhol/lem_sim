@@ -2,8 +2,6 @@ import unittest
 import numpy as np
 from scipy.optimize import linprog
 
-from lem_sim import linearoptimization as lp
-
 
 class LinearOptimizationTest(unittest.TestCase):
 
