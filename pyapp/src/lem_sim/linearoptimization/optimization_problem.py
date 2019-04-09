@@ -3,34 +3,32 @@ from scipy.optimize import linprog
 
 class OptimizationProblem(object):
 
-    def __init__(self, target_coefs, constraint_coefs, constraint_bounds):
-        self._target_coefs = target_coefs
-        self._constraint_coefs = constraint_coefs
-        self._constraint_bounds = constraint_bounds
+    def __init__(self, target_coefs, individual_resources, individual_coefs, shared_resources, shared_coefs):
+        self._target_coefs = target_coefs  # cost vectors
+        self._individual_resources = individual_resources  # individual resources
+        self._shared_resources = shared_resources  # shared resources
+        self._individual_coefs = individual_coefs  # individual coefficients
+        self._shared_coefs = shared_coefs  # shared coefficients
 
     @property
     def target_coefs(self):
         return self._target_coefs
 
-    @target_coefs.setter
-    def target_coefs(self, values):
-        self._target_coefs = values
+    @property
+    def individual_resources(self):
+        return self._individual_resources
 
     @property
-    def constraint_coefs(self):
-        return self._constraint_coefs
-
-    @constraint_coefs.setter
-    def constraint_coefs(self, values):
-        self._constraint_coefs = values
+    def individual_coefs(self):
+        return self._individual_coefs
 
     @property
-    def constraint_bounds(self):
-        return self._constraint_bounds
+    def shared_resources(self):
+        return self._shared_resources
 
-    @constraint_bounds.setter
-    def constraint_bounds(self, values):
-        self._constraint_bounds = values
+    @property
+    def shared_coefs(self):
+        return self._shared_coefs
 
     def solve(self):
         result = linprog(self._target_coefs, A_ub=self._constraint_coefs, b_ub=self._constraint_bounds)
@@ -38,5 +36,7 @@ class OptimizationProblem(object):
 
     def show(self):
         print('Target Coefficients:\n', self._target_coefs)
-        print('Constraint Coefficients:', *self._constraint_coefs, sep='\n')
-        print('Constraint Bounds:\n', self._constraint_bounds)
+        print('Individual Coefficients:', *self._individual_coefs, sep='\n')
+        print('Individual Resources:\n', self._individual_resources)
+        print('Shared Coefficients:', *self._shared_coefs, sep='\n')
+        print('Shared Resources:\n', self._shared_resources)

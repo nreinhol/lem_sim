@@ -12,14 +12,10 @@ def decompose(central_problem, var):
         C = shared coefs '''
 
         d, n, N, c, C = split_central_problem(central_problem, var.amount_agents)
-
         N = remove_zero_rows_of_individual_coefs(N)
 
-        constraint_coefs = build_constraint_coefs_for_agents(N, C)
-        constraint_bounds = build_constraint_bounds_for_agents(n, c)
-
-        for d_j, A_j, u_j, agent_j in zip(d, constraint_coefs, constraint_bounds, var.agent_pool):
-                optimization_problem_j = lp.OptimizationProblem(d_j, A_j, u_j)
+        for d_j, n_j, N_j, c_j, C_j, agent_j in zip(d, n, N, c, C, var.agent_pool):
+                optimization_problem_j = lp.OptimizationProblem(d_j, n_j, N_j, c_j, C_j)
                 agent_j.optimization_problem = optimization_problem_j
 
 
