@@ -17,7 +17,6 @@ def decompose(central_problem, var):
         for d_j, n_j, N_j, c_j, C_j, agent_j in zip(d, n, N, c, C, var.agent_pool):
                 optimization_problem_j = lp.OptimizationProblem(d_j, n_j, N_j, c_j, C_j)
                 agent_j.optimization_problem = optimization_problem_j
-                print(agent_j.bundle_set, agent_j.bid)
 
 
 def split_central_problem(central_problem, amount_agents):
