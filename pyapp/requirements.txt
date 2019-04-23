@@ -7,3 +7,4 @@ scipy==1.2.1
 flake8==3.5.0
 web3==4.2.0
 numpy==1.16.2
+cvxopt
