@@ -13,7 +13,7 @@ class ContractHandler(object):
         self._contract_abi = self._contract_artefact['abi']
         self._contract_address = self.get_address()
         self._contract = self._web3.eth.contract(address=self._contract_address, abi=self._contract_abi)
-    
+
     @property
     def contract(self):
         return self._contract

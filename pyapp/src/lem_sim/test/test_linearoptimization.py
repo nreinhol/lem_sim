@@ -1,7 +1,6 @@
 import unittest
 import numpy as np
 from scipy.optimize import linprog
-from cvxopt import matrix, solvers
 
 from lem_sim import linearoptimization as lp
 
@@ -48,26 +47,17 @@ class LinearOptimizationTest(unittest.TestCase):
 
         result = linprog(bundle_target_coefs, bundle_coefs, bundle_resources)
         self.assertTrue(np.array_equal(result.x[-bundle_size:], np.array([8, 3])))
-    
-    def test_cvxopt(self):
-        A = matrix([ [8.0, 0.0, 1.0, 0.0, 0.0, 0.0], [0.0, 3.0, 0.0, 1.0, 0.0, 0.0], [2.0, 0.0, 0.0, 0.0, 1.0, 0.0], [0.0, 3.0, 0.0, 0.0, 0.0, 1.0] ])
-        b = matrix([3.0, 4.0, 1.0, 1.0, 1.0, 1.0])
-        c = matrix([6.0, 0.0, 9.0, 0.0])
-        sol = solvers.lp(c, A, b)
-        
-    
+
     def test_mmp(self):
-        TARGET_COEFS = np.array([6, 0, 9, 0])
-        CONSTRAINT_COEFS = np.array([[8, 0, 2, 0], [0, 3, 0, 3], [1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
-        CONSTRAINT_BOUNDS = np.array([3, 4, 1, 1, 1, 1])
-        result = linprog(TARGET_COEFS, A_ub=CONSTRAINT_COEFS, b_ub=CONSTRAINT_BOUNDS)
-    
-    def test_mmp_second(self):
-        TARGET_COEFS = np.array([6, 9])
-        CONSTRAINT_COEFS = np.array([[8, 2], [3, 3], [1, 0], [0, 1]])
-        CONSTRAINT_BOUNDS = np.array([3, 4, 1, 1])
-        result = linprog(TARGET_COEFS, A_ub=CONSTRAINT_COEFS, b_ub=CONSTRAINT_BOUNDS)
-        print(result)
+        TARGET_COEFS = np.array([-6, -9])
+        CONSTRAINT_COEFS = np.array([[8, 2], [3, 3]])
+        CONSTRAINT_BOUNDS = np.array([3, 4])
+        COEF_BOUNDS = ((0, 1), (0, 1))
+        result = linprog(TARGET_COEFS, A_ub=CONSTRAINT_COEFS, b_ub=CONSTRAINT_BOUNDS, bounds=COEF_BOUNDS)
+
+    def test_mmp_dual(self):
+        pass
+
 
 if __name__ == '__main__':
     unittest.main()

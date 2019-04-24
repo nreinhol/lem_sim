@@ -24,16 +24,14 @@ class DealerTest(unittest.TestCase):
         INDIVIDUAL_COEFS = np.array([[2, 1, 0, 0], [0, 0, 2, 3]])  # individual coefficients(N)
         SHARED_RESOURCES = np.array([8, 5])  # shared resources (c)
         SHARED_COEFS = np.array([[1, 3, 2, 1], [1, 1, 1, 1]])  # shared coefficients (C)
-        
 
         variables = mem.Variables('ip')
         central_problem = lp.OptimizationProblem(TARGET_COEFS, INDIVIDUAL_RESOURCES, INDIVIDUAL_COEFS, SHARED_RESOURCES, SHARED_COEFS)
         lp.decompose(central_problem, variables)
-        
+
         agent = variables.agent_pool[0]
-        order = agent.bundle_set * 100000 # five places after decimal
+        order = agent.bundle_set * 100000  # five places after decimal
         order = [int(i) for i in order]
-        
+
         variables.dealer_contract.contract.functions.addOrder(order).transact({'from': agent.account_address, 'gas': 1000000})
-        response = variables.dealer_contract.contract.functions.getOrders(agent.account_address).call()
-        
+        variables.dealer_contract.contract.functions.getOrders(agent.account_address).call()
