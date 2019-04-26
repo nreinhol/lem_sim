@@ -1,11 +1,7 @@
 const Migrations = artifacts.require("Migrations");
-const Inbox = artifacts.require("Inbox");
-const Dealer = artifacts.require("Dealer");
+const Dealer = artifacts.require("Dealer"); 
 
-module.exports = function(deployer) {
-  deployer.deploy(Migrations).then(function() {
-    return deployer.deploy(Inbox).then(function() {
-    return deployer.deploy(Dealer);
-    })
-  })
+module.exports = function(deployer, network, accounts) {
+  deployer.deploy(Migrations)  
+  deployer.deploy(Dealer, {from: accounts[0]})
 };
