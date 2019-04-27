@@ -16,15 +16,28 @@ class DealerTest(unittest.TestCase):
     def test_mkt_prices(self):
         variables = mem.Variables('ip')
         mkt_prices = [3, 4]
-        variables.dealer_contract.contract.functions.setMktPrices(mkt_prices).transact({'from': variables.dealer, 'gas': 1000000})
+        dealer = variables.dealer
+        
+        # send mkt prices transaction - only possible from dealer account
+        variables.dealer_contract.contract.functions.setMktPrices(mkt_prices).transact({'from': dealer})
+        # get mkt prices from contract 
         contract_mkt_prices = variables.dealer_contract.contract.functions.getMktPrices().call()
+        
         self.assertEqual(mkt_prices, contract_mkt_prices)
-    
-    def test_order_count(self):
+
+    def test_order(self):
         variables = mem.Variables('ip')
-        agent = variables.agent_pool[0]
-        variables.dealer_contract.contract.functions.setOrderCount().transact({'from': agent.account_address})
-        count = variables.dealer_contract.contract.functions.getOrderCount().transact({'from': agent.account_address})
-        print(count)
+        agent = variables.agent_pool[0] 
+        bundle = [8, 3]
+        bid = 6
+
+        # send order transaction
+        variables.dealer_contract.contract.functions.setOrder(bundle, bid).transact({'from': agent.account_address})
+        # get order count
+        order_count = variables.dealer_contract.contract.functions.order_count().call()
+        # get latest order 
+        order = variables.dealer_contract.contract.functions.getOrder(order_count - 1).call()
         
-        
+        self.assertEqual(order[0], agent.account_address)
+        self.assertEqual(order[1], bundle)
+        self.assertEqual(order[2], bid)
