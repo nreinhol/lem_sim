@@ -41,3 +41,18 @@ class DealerTest(unittest.TestCase):
         self.assertEqual(order[0], agent.account_address)
         self.assertEqual(order[1], bundle)
         self.assertEqual(order[2], bid)
+
+    def test_trade(self):
+        variables = mem.Variables('ip')
+        agent = variables.agent_pool[0]
+        dealer = variables.dealer
+
+        # define a trade
+        bundle = [1, 2]
+        payment = 1000
+        account = agent.account_address
+
+        # send trade tansaction 
+        variables.dealer_contract.contract.functions.setTrade(account, bundle, payment).transact({'from': dealer})
+        trade = variables.dealer_contract.contract.functions.getTrade().call({'from': account, 'value': payment})
+        print(trade)
