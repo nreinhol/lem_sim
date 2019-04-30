@@ -11,12 +11,12 @@ class DealerTest(unittest.TestCase):
     def test_owner(self):
         variables = mem.Variables('ip')
         owner = variables.dealer_contract.contract.functions.getOwner().call()
-        self.assertEqual(owner, variables.dealer)
+        self.assertEqual(owner, variables.dealer.account_address)
     
     def test_mkt_prices(self):
         variables = mem.Variables('ip')
         mkt_prices = [3, 4]
-        dealer = variables.dealer
+        dealer = variables.dealer.account_address
         
         # send mkt prices transaction - only possible from dealer account
         variables.dealer_contract.contract.functions.setMktPrices(mkt_prices).transact({'from': dealer})
@@ -45,7 +45,7 @@ class DealerTest(unittest.TestCase):
     def test_trade(self):
         variables = mem.Variables('ip')
         agent = variables.agent_pool[0]
-        dealer = variables.dealer
+        dealer = variables.dealer.account_address
 
         # define a trade
         bundle = [1, 2]
