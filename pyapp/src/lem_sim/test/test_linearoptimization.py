@@ -59,19 +59,20 @@ class LinearOptimizationTest(unittest.TestCase):
     def test_mmp_dual(self):
         TARGET_COEFS = np.array([-6, -9], dtype=float)
         CONSTRAINT_COEFS = np.array([[8, 2], [3, 3], [1, 0], [0, 1]], dtype=float)
-        CONSTRAINT_BOUNDS = np.array([3, 4, 1, 1], dtype=float)      
-        
+        CONSTRAINT_BOUNDS = np.array([3, 4, 1, 1], dtype=float)
+
         A = matrix(CONSTRAINT_COEFS)
         b = matrix(CONSTRAINT_BOUNDS)
         c = matrix(TARGET_COEFS)
         solvers.options['show_progress'] = False
         sol = solvers.lp(c, A, b)
 
-        y_1 = float('%.5f'%(sol['x'][0]))
-        y_2 = float('%.5f'%(sol['x'][1]))
-        mkt_price_w1 = float('%.5f'%(sol['z'][0]))
-        mkt_price_w2 = float('%.5f'%(sol['z'][1]))
+        y_1 = float('%.5f' % (sol['x'][0]))
+        y_2 = float('%.5f' % (sol['x'][1]))
+        mkt_price_w1 = float('%.5f' % (sol['z'][0]))
+        mkt_price_w2 = float('%.5f' % (sol['z'][1]))
         self.assertEqual([y_1, y_2, mkt_price_w1, mkt_price_w2], [0.12500, 1.00000, 0.75000, 0.00000])
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -23,16 +23,24 @@ class Agent(object):
         return self._provider.eth.getBalance(self._account_address)
 
     @property
-    def optimization_problem(self):
-        return self._optimization_problem
-
-    @property
     def bundle_set(self):
         return self._bundle_set
+
+    @bundle_set.setter
+    def bundle_set(self, value):
+        self._bundle_set = value
 
     @property
     def bid(self):
         return self._bid
+
+    @bid.setter
+    def bid(self, value):
+        self._bid = value
+
+    @property
+    def optimization_problem(self):
+        return self._optimization_problem
 
     @optimization_problem.setter
     def optimization_problem(self, value):
@@ -46,6 +54,20 @@ class Agent(object):
         result = solve_bundle_determination(self._optimization_problem)
         self._bundle_set = result.x
         self._bid = abs(self._optimization_problem.solve().fun - result.fun)
+
+    def get_mkt_prices(self):
+        return self._dealer_contract.contract.functions.getMktPrices().call()
+
+    def get_bill(self):
+        self._bill = self._dealer_contract.contract.functions.getBill().call({'from': self._account_address})
+
+    def get_trade(self):
+        trade = self._dealer_contract.contract.functions.getTrade().call({'from': self._account_address, 'value': self._bill})
+        self._dealer_contract.contract.functions.getTrade().transact({'from': self._account_address, 'value': self._bill})
+        return trade
+
+    def set_order(self):
+        self._dealer_contract.contract.functions.setOrder(self._bundle_set, self._bid).transact({'from': self._account_address})
 
 
 def solve_bundle_determination(optimization_problem):
@@ -62,17 +84,3 @@ def solve_bundle_determination(optimization_problem):
         result.x = result.x[-bundle_size:]  # remove not bundle coefficients
 
         return result
-
-def get_mkt_prices(self):
-    return self._dealer_contract.contract.functions.getMktPrices().call()
-
-def get_bill(self):
-    self._bill = self._dealer_contract.contract.functions.getBill().call({'from': self._account_address})
-
-def get_trade(self):
-    trade = self._dealer_contract.contract.functions.getTrade().call({'from': self._account_address, 'value': self._bill})
-    self._dealer_contract.contract.functions.getTrade().transact({'from': self._account_address, 'value': self._bill})
-    return trade
-
-def set_order(self):
-    self._dealer_contract.contract.functions.setOrder(self._bundle_set, self._bid).transact({'from': self._account_address})
