@@ -11,6 +11,8 @@ class Agent(object):
         self._optimization_problem = None
         self._bundle_set = None
         self._bid = None
+        self._bill = None
+        self._mkt_prices = None
 
     @property
     def account_address(self):
@@ -62,10 +64,15 @@ def solve_bundle_determination(optimization_problem):
         return result
 
 def get_mkt_prices(self):
-    pass
+    return self._dealer_contract.contract.functions.getMktPrices().call()
+
+def get_bill(self):
+    self._bill = self._dealer_contract.contract.functions.getBill().call({'from': self._account_address})
 
 def get_trade(self):
-    pass
+    trade = self._dealer_contract.contract.functions.getTrade().call({'from': self._account_address, 'value': self._bill})
+    self._dealer_contract.contract.functions.getTrade().transact({'from': self._account_address, 'value': self._bill})
+    return trade
 
 def set_order(self):
-    pass
+    self._dealer_contract.contract.functions.setOrder(self._bundle_set, self._bid).transact({'from': self._account_address})

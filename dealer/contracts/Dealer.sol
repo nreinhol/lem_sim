@@ -11,7 +11,7 @@ contract Dealer{
     int256[] public resource_inventory;
     mapping(uint32 => Order) public orders;
     mapping(address => int256[]) private trades;
-    mapping(address => uint256) public payments;
+    mapping(address => uint256) public bills;
 
     constructor() public {
         _owner = msg.sender;
@@ -20,7 +20,7 @@ contract Dealer{
 
     modifier checkPayment() {
         require(
-            payments[msg.sender] == msg.value,
+            bills[msg.sender] == msg.value,
             "Not enough wei"
             );
         _;
@@ -42,7 +42,7 @@ contract Dealer{
 
     function setTrade(address _account, int256[] _trade, uint256 _payment) public onlyByOwner() {
         trades[_account] = _trade;
-        payments[_account] = _payment;
+        bills[_account] = _payment;
     }
 
     function getTrade() checkPayment() payable public returns (int256[]) {
@@ -85,6 +85,10 @@ contract Dealer{
 
     function getOwner() public view returns (address) {
         return _owner;
+    }
+
+    function getBill() public view returns (uint256) {
+        return bills[msg.sender];
     }
 
 }

@@ -12,7 +12,6 @@ class Variables(object):
         self._dealer = client.Dealer(self._accounts.pop(0), self._web3, self._dealer_contract)
         self._agent_pool = [client.Agent(account, self._web3, self._dealer_contract) for account in self._accounts]
         self._amount_agents = len(self._agent_pool)
-        
 
     @property
     def web3(self):

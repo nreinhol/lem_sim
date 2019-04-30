@@ -6,7 +6,7 @@ from lem_sim import globalmemory as mem
 from lem_sim import linearoptimization as lp
 
 
-class DealerTest(unittest.TestCase):
+class DealerContractTest(unittest.TestCase):
 
     def test_owner(self):
         variables = mem.Variables('ip')
@@ -49,10 +49,17 @@ class DealerTest(unittest.TestCase):
 
         # define a trade
         bundle = [1, 2]
-        payment = 1000
+        bill = 1000
         account = agent.account_address
 
         # send trade tansaction 
-        variables.dealer_contract.contract.functions.setTrade(account, bundle, payment).transact({'from': dealer})
-        trade = variables.dealer_contract.contract.functions.getTrade().call({'from': account, 'value': payment})
-        print(trade)
+        variables.dealer_contract.contract.functions.setTrade(account, bundle, bill).transact({'from': dealer})
+        trade = variables.dealer_contract.contract.functions.getTrade().call({'from': account, 'value': bill})
+
+    def test_bill(self):
+        variables = mem.Variables('ip')
+        agent = variables.agent_pool[0]
+        account = agent.account_address
+        dealer = variables.dealer.account_address
+        bills = variables.dealer_contract.contract.functions.getBill().call({'from': account})
+    
