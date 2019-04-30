@@ -4,9 +4,10 @@ from scipy.optimize import linprog
 
 class Agent(object):
 
-    def __init__(self, account_address, provider):
+    def __init__(self, account_address, provider, dealer_contract):
         self._account_address = account_address
         self._provider = provider
+        self._dealer_contract = dealer_contract
         self._optimization_problem = None
         self._bundle_set = None
         self._bid = None
@@ -59,3 +60,12 @@ def solve_bundle_determination(optimization_problem):
         result.x = result.x[-bundle_size:]  # remove not bundle coefficients
 
         return result
+
+def get_mkt_prices(self):
+    pass
+
+def get_trade(self):
+    pass
+
+def set_order(self):
+    pass
