@@ -1,6 +1,8 @@
 import numpy as np
 from scipy.optimize import linprog
 
+from lem_sim import utils
+
 
 class Agent(object):
 
@@ -45,18 +47,18 @@ class Agent(object):
     @optimization_problem.setter
     def optimization_problem(self, value):
         self._optimization_problem = value
-        self.determine_bundle_attributes()
-
-    def send_transaction(self, receiver_account_address, value):
-        self._provider.eth.sendTransaction({'to': receiver_account_address, 'from': self.account_address, 'value': value})
+        # self.determine_bundle_attributes()
 
     def determine_bundle_attributes(self):
-        result = solve_bundle_determination(self._optimization_problem)
+        result = solve_bundle_determination(self._optimization_problem, self._mkt_prices)
         self._bundle_set = result.x
         self._bid = abs(self._optimization_problem.solve().fun - result.fun)
 
     def get_mkt_prices(self):
-        return self._dealer_contract.contract.functions.getMktPrices().call()
+        mkt_prices = self._dealer_contract.contract.functions.getMktPrices().call()
+        mkt_prices = utils.shift_decimal_left(mkt_prices)
+        self._mkt_prices = np.array(mkt_prices)
+        return self._mkt_prices
 
     def get_bill(self):
         self._bill = self._dealer_contract.contract.functions.getBill().call({'from': self._account_address})
@@ -70,17 +72,15 @@ class Agent(object):
         self._dealer_contract.contract.functions.setOrder(self._bundle_set, self._bid).transact({'from': self._account_address})
 
 
-def solve_bundle_determination(optimization_problem):
-        bundle_size = optimization_problem.shared_resources.size
-
-        bundle_target_coefs = np.concatenate((optimization_problem.target_coefs, np.zeros(bundle_size)))
+def solve_bundle_determination(optimization_problem, mkt_prices):
+        bundle_target_coefs = np.concatenate((optimization_problem.target_coefs, mkt_prices))
         bundle_individual_coefs = np.concatenate((optimization_problem.individual_coefs, np.zeros(optimization_problem.individual_coefs.shape)), axis=1)
-        bundle_shared_coefs = np.concatenate((optimization_problem.shared_coefs, np.identity(bundle_size, dtype=float) * (-1)), axis=1)
+        bundle_shared_coefs = np.concatenate((optimization_problem.shared_coefs, np.identity(mkt_prices.size, dtype=float) * (-1)), axis=1)
 
         bundle_coefs = np.concatenate((bundle_individual_coefs, bundle_shared_coefs))
         bundle_resources = np.concatenate((optimization_problem.individual_resources, optimization_problem.shared_resources))
 
         result = linprog(bundle_target_coefs, bundle_coefs, bundle_resources)
-        result.x = result.x[-bundle_size:]  # remove not bundle coefficients
+        result.x = result.x[- mkt_prices.size:]  # remove not bundle coefficients
 
         return result
