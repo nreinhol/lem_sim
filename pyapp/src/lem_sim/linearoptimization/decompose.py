@@ -3,7 +3,7 @@ import numpy as np
 from lem_sim import linearoptimization as lp
 
 
-def decompose(central_problem, var):
+def decompose(var):
         '''
         d = target coefs
         n = individual resources
@@ -11,7 +11,7 @@ def decompose(central_problem, var):
         c = shared resources
         C = shared coefs '''
 
-        d, n, N, c, C = split_central_problem(central_problem, var)
+        d, n, N, c, C = split_central_problem(var)
         N = remove_zero_rows_of_individual_coefs(N)
 
         for d_j, n_j, N_j, c_j, C_j, agent_j in zip(d, n, N, c, C, var.agent_pool):
@@ -19,8 +19,10 @@ def decompose(central_problem, var):
                 agent_j.optimization_problem = optimization_problem_j
 
 
-def split_central_problem(central_problem, var):
+def split_central_problem(var):
         amount_agents = var.amount_agents
+        central_problem = var.central_problem
+
         d = np.split(central_problem.target_coefs, amount_agents, axis=0)
         n = np.split(central_problem.individual_resources, amount_agents, axis=0)
         N = np.split(central_problem.individual_coefs, amount_agents, axis=1)
