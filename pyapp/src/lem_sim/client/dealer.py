@@ -1,13 +1,16 @@
+import numpy as np
+
+from lem_sim import utils
 
 
 class Dealer(object):
 
-    def __init__(self, account_address, provider, dealer_contract):
+    def __init__(self, account_address, provider, dealer_contract, shared_resource_size):
         self._account_address = account_address
         self._provider = provider
         self._dealer_contract = dealer_contract
         self._resource_inventory = None
-        self._mkt_prices = None
+        self._mkt_prices = np.zeros(shared_resource_size)
 
     @property
     def account_address(self):
@@ -30,9 +33,10 @@ class Dealer(object):
         self._resource_inventory = value
 
     def set_mkt_prices(self):
-        self._dealer_contract.contract.functions.setMktPrices(self._mkt_prices).transact({'from': self._account_address})
+        mkt_prices = utils.shift_decimal_right(self._mkt_prices.tolist())
+        self._dealer_contract.contract.functions.setMktPrices(mkt_prices).transact({'from': self._account_address})
 
-    def set_resource_inventory(self, resource_inventory):
+    def set_resource_inventory(self):
         self._dealer_contract.contract.functions.setResourceInventory(self._resource_inventory)
 
     def get_resource_inventory(self):
