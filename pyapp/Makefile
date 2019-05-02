@@ -7,7 +7,7 @@ PROJECT_NAME = lem_sim
 PROJECT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 VENV_DIR =  $(PROJECT_DIR)/env
 
-PYTHON_INTERPRETER = $(VENV_DIR)/bin/python3
+PYTHON_INTERPRETER = $(VENV_DIR)/bin/python3 -W ignore::DeprecationWarning
 PIP = $(VENV_DIR)/bin/pip
 
 #################################################################################
