@@ -15,9 +15,9 @@ def main(connection):
     output.print_central_problem(var.central_problem)
 
     ''' main simulation loop '''
-    var.dealer.set_mkt_prices()  # dealer sets mktprices
+    var.dealer.set_mkt_prices()
 
-    for agent in var.agent_pool:  # agents get mktprices and calc bundle
+    for agent in var.agent_pool:
         agent.get_mkt_prices()
         agent.determine_bundle_attributes()
 
