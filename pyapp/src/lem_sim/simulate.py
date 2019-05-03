@@ -12,7 +12,7 @@ def main(connection):
     ''' initial setup of simulation '''
     var = mem.Variables(connection)
     lp.decompose(var)
-    # output.print_central_problem(var.central_problem)
+    output.print_central_problem(var.central_problem)
 
     ''' main simulation loop '''
     var.dealer.set_mkt_prices()
@@ -21,11 +21,13 @@ def main(connection):
         agent.get_mkt_prices()
         agent.determine_bundle_attributes()
         agent.set_order()
+    
+    output.print_agents_lps(var)
 
     var.dealer.get_orders()
-
-    # output.print_agents_lps(var)
+    var.dealer.solve_mmp()  
 
 
 if __name__ == '__main__':
     main()
+
