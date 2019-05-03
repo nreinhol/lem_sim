@@ -11,7 +11,7 @@ class Dealer(object):
         self._dealer_contract = dealer_contract
         self._resource_inventory = None
         self._mkt_prices = np.zeros(shared_resource_size)
-        self._orders = {}
+        self._order_pool = utils.OrderPool()
 
     @property
     def account_address(self):
@@ -47,20 +47,16 @@ class Dealer(object):
         order_count = self._dealer_contract.contract.functions.order_count().call()
 
         # get all orders
-        for order in range(order_count):
+        for order_id, order in enumerate(range(order_count)):
             order = self._dealer_contract.contract.functions.getOrder(order).call()
-            account = order.pop(0)
-            order_dict = {}
-            
-            for index, element in enumerate(order):
-                order_dict[index] = utils.prepare_for_storing(element)
-
-            if account in self._orders.keys():
-                self._orders[account].append(order_dict)
-            else:
-                self._orders[account] = [order_dict]
-        
-        print(self._orders)
+            self._order_pool.add_order(order_id, order)
 
     def set_trades(self, account, bundle, bill):
         self._dealer_contract.contract.functions.setTrade(account, bundle, bill).transact({'from': self._account_address})
+
+    def solve_mmp(self):
+        bundles = [order.get_concatenated_bundles() for order in self._order_pool.get_all_orders()]
+        bids = [order.get_concatenated_bids() for order in self._order_pool.get_all_orders()]
+        CONSTRAINT_COEFS = np.hstack(bundles)
+        TARGET_COEFS = np.hstack(bids)
+        CONSTRAINT_BOUNDS = self._resource_inventory
