@@ -1,5 +1,5 @@
 import numpy as np
-
+from cvxopt import matrix, solvers
 from lem_sim import utils
 
 
@@ -57,6 +57,32 @@ class Dealer(object):
     def solve_mmp(self):
         bundles = [order.get_concatenated_bundles() for order in self._order_pool.get_all_orders()]
         bids = [order.get_concatenated_bids() for order in self._order_pool.get_all_orders()]
-        CONSTRAINT_COEFS = np.hstack(bundles)
-        TARGET_COEFS = np.hstack(bids)
-        CONSTRAINT_BOUNDS = self._resource_inventory
+        
+        TARGET_COEFS = np.hstack(bids) * (-1)
+        VARIABLE_LEQ_CONSTRAINT = np.identity(self._resource_inventory.size, dtype=float)
+        CONSTRAINT_COEFS = np.concatenate((np.hstack(bundles), VARIABLE_LEQ_CONSTRAINT), axis=0) 
+        AMOUNT_OF_VARIABLES = np.size(CONSTRAINT_COEFS, 1)
+        CONSTRAINT_BOUNDS = np.concatenate((self._resource_inventory, np.ones(AMOUNT_OF_VARIABLES, dtype=float))) 
+
+        A = matrix(CONSTRAINT_COEFS)
+        b = matrix(CONSTRAINT_BOUNDS)
+        c = matrix(TARGET_COEFS)
+
+        print(A)
+        print(b)
+        print(c)
+        # solvers.options['show_progress'] = False
+        sol = solvers.lp(c, A, b)
+
+        y_1 = float('%.5f' % (sol['x'][0]))
+        y_2 = float('%.5f' % (sol['x'][1]))
+        mkt_price_w1 = float('%.5f' % (sol['z'][0]))
+        mkt_price_w2 = float('%.5f' % (sol['z'][1]))
+        
+        print(y_1, y_2)
+        print(mkt_price_w1, mkt_price_w2)
+        
+        
+
+        
+        
