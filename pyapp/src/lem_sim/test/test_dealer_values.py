@@ -2,6 +2,7 @@ import unittest
 import numpy as np
 
 from lem_sim import utils
+from lem_sim import globalmemory as mem
 
 
 class DealerValuesTest(unittest.TestCase):
@@ -41,3 +42,20 @@ class DealerValuesTest(unittest.TestCase):
         self.assertIsInstance(prepared_list, np.ndarray)
         self.assertIsInstance(prepared_list[0], float)
         self.assertIsInstance(prepared_value, float)
+    
+    def test_create_trades(self):
+        first_order = ['account_1', [8, 3], 6]
+        second_order = ['account_1', [2, 9], 3]
+        third_order = ['account_2', [1, 4], 7]
+        fourth_order = ['account_1', [5, 6], 4]
+
+        var = mem.Variables('ip')
+        dealer = var.dealer
+        dealer._mmp_values = np.array([1, 0, 1, 1])
+        dealer._order_pool.add_order(0, first_order)
+        dealer._order_pool.add_order(1, second_order)
+        dealer._order_pool.add_order(2, third_order)
+        dealer._order_pool.add_order(3, fourth_order)
+
+        dealer.set_trade_share()
+        print(dealer.get_settled_order_indices())

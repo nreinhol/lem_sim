@@ -25,6 +25,7 @@ def main(connection):
     output.print_agents_lps(var)
 
     var.dealer.get_orders()
+    var.dealer.create_mmp()
     var.dealer.solve_mmp()  
 
 

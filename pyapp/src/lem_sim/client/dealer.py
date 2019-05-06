@@ -13,6 +13,12 @@ class Dealer(object):
         self._mkt_prices = np.zeros(shared_resource_size)
         self._order_pool = utils.OrderPool()
 
+        self._mmp_target_coefs = None
+        self._mmp_constraint_coefs = None
+        self._mmp_constraint_bounds = None
+        self._mmp_amount_variables = None
+        self._mmp_values = None
+
     @property
     def account_address(self):
         return self._account_address
@@ -54,35 +60,45 @@ class Dealer(object):
     def set_trades(self, account, bundle, bill):
         self._dealer_contract.contract.functions.setTrade(account, bundle, bill).transact({'from': self._account_address})
 
-    def solve_mmp(self):
+    def create_mmp(self):
         bundles = [order.get_concatenated_bundles() for order in self._order_pool.get_all_orders()]
         bids = [order.get_concatenated_bids() for order in self._order_pool.get_all_orders()]
-        
-        TARGET_COEFS = np.hstack(bids) * (-1)
-        VARIABLE_LEQ_CONSTRAINT = np.identity(self._resource_inventory.size, dtype=float)
-        CONSTRAINT_COEFS = np.concatenate((np.hstack(bundles), VARIABLE_LEQ_CONSTRAINT), axis=0) 
-        AMOUNT_OF_VARIABLES = np.size(CONSTRAINT_COEFS, 1)
-        CONSTRAINT_BOUNDS = np.concatenate((self._resource_inventory, np.ones(AMOUNT_OF_VARIABLES, dtype=float))) 
 
-        A = matrix(CONSTRAINT_COEFS)
-        b = matrix(CONSTRAINT_BOUNDS)
-        c = matrix(TARGET_COEFS)
+        try:
+            TARGET_COEFS = np.hstack(bids) * (-1)  # create target coef vector 
+            VARIABLE_LEQ_CONSTRAINT = np.identity(self._resource_inventory.size, dtype=float)  # create constraint matrix for y<=1
+            CONSTRAINT_COEFS = np.concatenate((np.hstack(bundles), VARIABLE_LEQ_CONSTRAINT), axis=0)  # create final constraint matrix
+            self._mmp_amount_variables = np.size(CONSTRAINT_COEFS, 1)  # set amount of variables 
+            CONSTRAINT_BOUNDS = np.concatenate((self._resource_inventory, np.ones(self._mmp_amount_variables, dtype=float)))
 
-        print(A)
-        print(b)
-        print(c)
-        # solvers.options['show_progress'] = False
-        sol = solvers.lp(c, A, b)
+            self._mmp_constraint_coefs = matrix(CONSTRAINT_COEFS)
+            self._mmp_constraint_bounds = matrix(CONSTRAINT_BOUNDS)
+            self._mmp_target_coefs = matrix(TARGET_COEFS)
 
-        y_1 = float('%.5f' % (sol['x'][0]))
-        y_2 = float('%.5f' % (sol['x'][1]))
-        mkt_price_w1 = float('%.5f' % (sol['z'][0]))
-        mkt_price_w2 = float('%.5f' % (sol['z'][1]))
-        
-        print(y_1, y_2)
-        print(mkt_price_w1, mkt_price_w2)
-        
-        
+        except ValueError as error:
+            print('Creation of MMP failed!')
+            print(error)
 
+    def solve_mmp(self):
+        solvers.options['show_progress'] = False
+        sol = solvers.lp(self._mmp_target_coefs, self._mmp_constraint_coefs, self._mmp_constraint_bounds)
+
+        self._mmp_values = [float('%.5f' % (sol['x'][i])) for i in range(self._mmp_amount_variables)]
+        self._mkt_prices = [float('%.5f' % (sol['z'][i])) for i in range(self._mmp_amount_variables)]
+
+    def set_trade_share(self):
+        amount_orders = [order.amount_orders for order in self._order_pool.get_all_orders()]
+        trade_share = self._mmp_values
+        for amount, orders in zip(amount_orders, self._order_pool.get_all_orders()):
+            orders.trade_share = trade_share[0:amount]
+            trade_share = trade_share[amount:]
+    
+    def get_settled_order_indices(self):
+        settled_orders = []
         
+        for order in self._order_pool.get_all_orders():
+            indice_of_trade_shares_not_zero = (order.trade_share.nonzero()[0].tolist())
+            indice_of_settled_orders = [order.indices[index] for index in indice_of_trade_shares_not_zero]
+            settled_orders += indice_of_settled_orders
         
+        return settled_orders

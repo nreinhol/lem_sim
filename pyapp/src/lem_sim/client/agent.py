@@ -60,7 +60,6 @@ class Agent(object):
     @optimization_problem.setter
     def optimization_problem(self, value):
         self._optimization_problem = value
-        # self.determine_bundle_attributes()
 
     def determine_bundle_attributes(self):
         result = solve_bundle_determination(self._optimization_problem, self._mkt_prices)
