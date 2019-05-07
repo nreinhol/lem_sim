@@ -11,7 +11,7 @@ class Dealer(object):
         self._dealer_contract = dealer_contract
         self._resource_inventory = None
         self._mkt_prices = np.zeros(shared_resource_size)
-        self._order_pool = utils.OrderPool()
+        self._order_handler = None
 
         self._mmp_target_coefs = None
         self._mmp_constraint_coefs = None
@@ -40,7 +40,7 @@ class Dealer(object):
         self._resource_inventory = value
 
     def set_mkt_prices(self):
-        mkt_prices = utils.shift_decimal_right(self._mkt_prices.tolist())
+        mkt_prices = utils.prepare_for_sending(self._mkt_prices)
         self._dealer_contract.contract.functions.setMktPrices(mkt_prices).transact({'from': self._account_address})
 
     def set_resource_inventory(self):
@@ -50,19 +50,26 @@ class Dealer(object):
         return self._dealer_contract.contract.functions.getResourceInventory().call()
 
     def get_orders(self):
+        self._order_handler = utils.OrderHandler()
         order_count = self._dealer_contract.contract.functions.order_count().call()
 
-        # get all orders
-        for order_id, order in enumerate(range(order_count)):
-            order = self._dealer_contract.contract.functions.getOrder(order).call()
-            self._order_pool.add_order(order_id, order)
+        # get all orders from contract and store in order handler
+        for order_id in range(order_count):
+            order = self._dealer_contract.contract.functions.getOrder(order_id).call()
+            self._order_handler.add_order(order_id, order)
+    
+    def set_trades(self):
+        self.set_trade_share()
+        self.initiate_trade_calculation()
+        self.initiate_bill_calculation()
 
-    def set_trades(self, account, bundle, bill):
-        self._dealer_contract.contract.functions.setTrade(account, bundle, bill).transact({'from': self._account_address})
+        for order in self._order_handler.get_all_orders():
+            account, trade, bill = order.get_trade_information()
+            self._dealer_contract.contract.functions.setTrade(account, trade, bill).transact({'from': self._account_address})
 
     def create_mmp(self):
-        bundles = [order.get_concatenated_bundles() for order in self._order_pool.get_all_orders()]
-        bids = [order.get_concatenated_bids() for order in self._order_pool.get_all_orders()]
+        bundles = [order.get_concatenated_bundles() for order in self._order_handler.get_all_orders()]
+        bids = [order.get_concatenated_bids() for order in self._order_handler.get_all_orders()]
 
         try:
             TARGET_COEFS = np.hstack(bids) * (-1)  # create target coef vector 
@@ -82,21 +89,28 @@ class Dealer(object):
     def solve_mmp(self):
         solvers.options['show_progress'] = False
         sol = solvers.lp(self._mmp_target_coefs, self._mmp_constraint_coefs, self._mmp_constraint_bounds)
-
-        self._mmp_values = [float('%.5f' % (sol['x'][i])) for i in range(self._mmp_amount_variables)]
-        self._mkt_prices = [float('%.5f' % (sol['z'][i])) for i in range(self._mmp_amount_variables)]
+        self._mmp_values = np.array([float('%.5f' % (sol['x'][i])) for i in range(self._mmp_amount_variables)])
+        self._mkt_prices = np.array([float('%.5f' % (sol['z'][i])) for i in range(self._mmp_amount_variables)])
 
     def set_trade_share(self):
-        amount_orders = [order.amount_orders for order in self._order_pool.get_all_orders()]
+        amount_orders = [order.amount_orders for order in self._order_handler.get_all_orders()]
         trade_share = self._mmp_values
-        for amount, orders in zip(amount_orders, self._order_pool.get_all_orders()):
+        for amount, orders in zip(amount_orders, self._order_handler.get_all_orders()):
             orders.trade_share = trade_share[0:amount]
             trade_share = trade_share[amount:]
+    
+    def initiate_trade_calculation(self):
+        for order in self._order_handler.get_all_orders():
+            order.calculate_trade()
+    
+    def initiate_bill_calculation(self):
+        for order in self._order_handler.get_all_orders():
+            order.calculate_bill(self._mkt_prices)
     
     def get_settled_order_indices(self):
         settled_orders = []
         
-        for order in self._order_pool.get_all_orders():
+        for order in self._order_handler.get_all_orders():
             indice_of_trade_shares_not_zero = (order.trade_share.nonzero()[0].tolist())
             indice_of_settled_orders = [order.indices[index] for index in indice_of_trade_shares_not_zero]
             settled_orders += indice_of_settled_orders

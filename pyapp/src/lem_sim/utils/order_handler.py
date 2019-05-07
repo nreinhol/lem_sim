@@ -3,7 +3,7 @@ import numpy as np
 from lem_sim import utils
 
 
-class OrderPool(object):
+class OrderHandler(object):
 
     def __init__(self):
         self._pool = {}
@@ -37,6 +37,8 @@ class Orders(object):
         self._bids = []
         self._indices = []
         self._trade_share = []
+        self._trade = None
+        self._bill = None
 
     @property
     def account(self):
@@ -49,6 +51,10 @@ class Orders(object):
     @property
     def indices(self):
         return self._indices
+    
+    @property
+    def trade(self):
+        return self._trade
 
     @property
     def amount_orders(self):
@@ -72,3 +78,16 @@ class Orders(object):
 
     def get_concatenated_bids(self):
         return np.array(self._bids)
+    
+    def calculate_trade(self):
+        self._trade = sum([bundle * trade_share for bundle, trade_share in zip(self._bundles, self._trade_share)])
+    
+    def calculate_bill(self, mkt_prices):
+        self._bill = np.sum(np.multiply(self._trade, mkt_prices))
+    
+    def get_trade_information(self):
+        trade = utils.prepare_for_sending(self._trade)
+        bill = utils.prepare_for_sending(self._bill)
+
+        return self._account, trade, bill
+

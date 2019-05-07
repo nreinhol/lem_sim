@@ -26,7 +26,15 @@ def main(connection):
 
     var.dealer.get_orders()
     var.dealer.create_mmp()
-    var.dealer.solve_mmp()  
+    var.dealer.solve_mmp()
+    var.dealer.set_trades()
+
+    for agent in var.agent_pool:
+        agent.get_bill()
+        agent.get_trade()
+        agent.get_mkt_prices()
+        print(agent.bill, agent.trade)
+
 
 
 if __name__ == '__main__':

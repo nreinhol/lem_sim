@@ -75,9 +75,10 @@ class Agent(object):
         self._bill = utils.prepare_for_storing(bill)
 
     def get_trade(self):
-        trade = self._dealer_contract.contract.functions.getTrade().call({'from': self._account_address, 'value': self._bill})
+        bill = utils.prepare_for_sending(self._bill)
+        trade = self._dealer_contract.contract.functions.getTrade().call({'from': self._account_address, 'value': bill})
         self._trade = utils.prepare_for_storing(trade)
-        self._dealer_contract.contract.functions.getTrade().transact({'from': self._account_address, 'value': self._bill})
+        self._dealer_contract.contract.functions.getTrade().transact({'from': self._account_address, 'value': bill})
 
     def set_order(self):
         bundle_set = utils.prepare_for_sending(self._bundle_set)

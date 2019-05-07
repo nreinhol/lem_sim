@@ -52,10 +52,10 @@ class DealerValuesTest(unittest.TestCase):
         var = mem.Variables('ip')
         dealer = var.dealer
         dealer._mmp_values = np.array([1, 0, 1, 1])
-        dealer._order_pool.add_order(0, first_order)
-        dealer._order_pool.add_order(1, second_order)
-        dealer._order_pool.add_order(2, third_order)
-        dealer._order_pool.add_order(3, fourth_order)
+        dealer._order_handler = utils.OrderHandler()
+        dealer._order_handler.add_order(0, first_order)
+        dealer._order_handler.add_order(1, second_order)
+        dealer._order_handler.add_order(2, third_order)
+        dealer._order_handler.add_order(3, fourth_order)
 
         dealer.set_trade_share()
-        print(dealer.get_settled_order_indices())
