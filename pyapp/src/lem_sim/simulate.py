@@ -1,4 +1,5 @@
 import click
+import numpy as np
 
 from lem_sim import globalmemory as mem
 from lem_sim import linearoptimization as lp
@@ -13,32 +14,46 @@ def main(connection):
     var = mem.Variables(connection)
     lp.decompose(var)
     output.print_central_problem(var.central_problem)
-
-    ''' main simulation loop '''
     var.dealer.set_mkt_prices()
-
-    for agent in var.agent_pool:
-        agent.get_mkt_prices()
-        agent.determine_bundle_attributes()
-        agent.set_order()
     
-    output.print_agents_lps(var)
+    market_prices = var.dealer.mkt_prices
+    equal_market_prices = False
+    iteration = 0
+    while(not equal_market_prices):
+        ''' main simulation loop '''
+        
+        print('---------- Iteration {} ----------'.format(iteration))
+        for agent in var.agent_pool:
+            print(agent)
 
-    var.dealer.get_orders()
-    var.dealer.create_mmp()
-    var.dealer.solve_mmp()
-    var.dealer.set_trades()
+        print(var.dealer)
 
-    for agent in var.agent_pool:
-        agent.get_bill()
-        agent.get_trade()
-        agent.get_mkt_prices()
-    
-    var.dealer.delete_order()
-    var.dealer.get_orders()
 
+        for agent in var.agent_pool:
+            agent.get_mkt_prices()
+            agent.determine_bundle_attributes()
+            agent.set_order()
+
+        var.dealer.get_orders()
+        var.dealer.create_mmp()
+        var.dealer.solve_mmp()
+        var.dealer.set_trades()
+
+        for agent in var.agent_pool:
+            agent.get_bill()
+            agent.get_trade()
+            agent.add_trade_to_shared_resources()
+        
+        var.dealer.delete_order()
+        var.dealer.calculate_resource_inventory()
+        var.dealer.set_mkt_prices()
+
+        iteration += 1
+        if(np.array_equal(market_prices, var.dealer.mkt_prices)):
+            equal_market_prices = True
+        else:
+            market_prices = var.dealer.mkt_prices
 
 
 if __name__ == '__main__':
     main()
-

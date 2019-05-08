@@ -10,6 +10,7 @@ class Dealer(object):
         self._provider = provider
         self._dealer_contract = dealer_contract
         self._resource_inventory = None
+        self._trade = None
         self._mkt_prices = np.zeros(shared_resource_size)
         self._order_handler = None
 
@@ -55,15 +56,16 @@ class Dealer(object):
     def get_orders(self):
         self._order_handler = utils.OrderHandler()
         order_indices = self.get_order_indices()
-        print('order indices: {}'.format(order_indices))
+        print('order indices', order_indices)
         # get all orders from contract and store in order handler
         for order_id in order_indices:
-            print('order id: {}'.format(order_id))
             order = self._dealer_contract.contract.functions.getOrder(order_id).call()
+            print('contract order', order)
             self._order_handler.add_order(order_id, order)
     
     def delete_order(self):
         settled_orders = self.get_settled_order_indices()
+        print('settled orders', settled_orders)
         for order_id in settled_orders:
             self._dealer_contract.contract.functions.deleteOrder(order_id).transact({'from': self._account_address})
 
@@ -79,7 +81,8 @@ class Dealer(object):
     def create_mmp(self):
         bundles = [order.get_concatenated_bundles() for order in self._order_handler.get_all_orders()]
         bids = [order.get_concatenated_bids() for order in self._order_handler.get_all_orders()]
-
+        print('bundles: ', bundles)
+        print('bids', bids)
         try:
             TARGET_COEFS = np.hstack(bids) * (-1)  # create target coef vector 
             VARIABLE_LEQ_CONSTRAINT = np.identity(self._resource_inventory.size, dtype=float)  # create constraint matrix for y<=1
@@ -98,8 +101,8 @@ class Dealer(object):
     def solve_mmp(self):
         solvers.options['show_progress'] = False
         sol = solvers.lp(self._mmp_target_coefs, self._mmp_constraint_coefs, self._mmp_constraint_bounds)
-        self._mmp_values = np.array([float('%.5f' % (sol['x'][i])) for i in range(self._mmp_amount_variables)])
-        self._mkt_prices = np.array([float('%.5f' % (sol['z'][i])) for i in range(self._mmp_amount_variables)])
+        self._mmp_values = np.array([float('%.2f' % (sol['x'][i])) for i in range(self._mmp_amount_variables)])
+        self._mkt_prices = np.array([float('%.2f' % (sol['z'][i])) for i in range(self._mmp_amount_variables)])
 
     def set_trade_share(self):
         amount_orders = [order.amount_orders for order in self._order_handler.get_all_orders()]
@@ -125,3 +128,18 @@ class Dealer(object):
             settled_orders += indice_of_settled_orders
         
         return settled_orders
+    
+    def calculate_resource_inventory(self):
+        self._trade = sum([order.trade for order in self._order_handler.get_all_orders()])
+        self._resource_inventory = self._resource_inventory - self._trade
+    
+    def __str__(self):
+        class_str = '\nDEALER\ndealer inventory: {}\ndealer trade: {}\nmarket price: {}\nmmp values: {}'.format(
+            self._resource_inventory,
+            self._trade,
+            self._mkt_prices,
+            self._mmp_values
+            )
+        return class_str
+        
+

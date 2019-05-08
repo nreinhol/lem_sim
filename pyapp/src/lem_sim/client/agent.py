@@ -81,10 +81,26 @@ class Agent(object):
         self._dealer_contract.contract.functions.getTrade().transact({'from': self._account_address, 'value': bill})
 
     def set_order(self):
-        bundle_set = utils.prepare_for_sending(self._bundle_set)
-        bid = utils.prepare_for_sending(self._bid)
-        self._dealer_contract.contract.functions.setOrder(bundle_set, bid).transact({'from': self._account_address})
+        if(np.array_equal(self._bundle_set, np.array([0, 0], dtype=float))):
+            pass
+        else:
+            bundle_set = utils.prepare_for_sending(self._bundle_set)
+            bid = utils.prepare_for_sending(self._bid)
+            self._dealer_contract.contract.functions.setOrder(bundle_set, bid).transact({'from': self._account_address})
 
+    def add_trade_to_shared_resources(self):
+        self._optimization_problem.shared_resources = np.add(self._optimization_problem.shared_resources, self._trade)
+    
+    def __str__(self):
+        class_str = '\naccount: {}\norder: {}\nbid: {}\ntrade: {}\nbill: {}\nallocation: {}'.format(
+            self._account_address,
+            self._bundle_set,
+            self._bid,
+            self._trade,
+            self._bill,
+            self.optimization_problem.shared_resources
+            )
+        return class_str
 
 def solve_bundle_determination(optimization_problem, mkt_prices):
         bundle_target_coefs = np.concatenate((optimization_problem.target_coefs, mkt_prices))

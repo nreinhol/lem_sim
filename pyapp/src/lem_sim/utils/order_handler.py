@@ -81,7 +81,7 @@ class Orders(object):
     
     def calculate_trade(self):
         self._trade = sum([bundle * trade_share for bundle, trade_share in zip(self._bundles, self._trade_share)])
-    
+
     def calculate_bill(self, mkt_prices):
         self._bill = np.sum(np.multiply(self._trade, mkt_prices))
     

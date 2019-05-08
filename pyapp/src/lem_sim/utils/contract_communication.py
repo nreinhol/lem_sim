@@ -1,6 +1,6 @@
 import numpy as np
 
-DECIMAL_PLACES = 10
+DECIMAL_PLACES = 2
 MULTIPLIER = 10**DECIMAL_PLACES
 
 
