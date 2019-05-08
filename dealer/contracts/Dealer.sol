@@ -7,6 +7,7 @@ pragma solidity ^0.4.25;
 contract Dealer{ 
     address private _owner;
     uint32 public order_count;
+    uint32[] public order_indices;
     int256[] public mkt_prices;
     int256[] public resource_inventory;
     mapping(uint32 => Order) public orders;
@@ -58,7 +59,7 @@ contract Dealer{
         );
 
         orders[order_count] = new_order;
-        
+        order_indices.push(order_count);
         // increment order count
         order_count ++;        
     }
@@ -73,6 +74,25 @@ contract Dealer{
 
     function getMktPrices() public view returns (int256[]) {
         return mkt_prices;
+    }
+
+    function getOrderIndices() public view returns (uint32[]) {
+        return order_indices;
+    }
+
+    function deleteOrder(uint32 index) public onlyByOwner() {
+        delete orders[index];
+        if (index >= order_indices.length) {
+            delete order_indices;
+        }
+        else {
+            delete order_indices[index];
+        
+            for (uint i = index; i<order_indices.length-1; i++){
+                order_indices[i] = order_indices[i+1];
+            }
+            order_indices.length--;        
+        }
     }
 
     function setResourceInventory (int256[] _resource_inventory) public onlyByOwner() {
