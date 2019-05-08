@@ -49,15 +49,24 @@ class Dealer(object):
     def get_resource_inventory(self):
         return self._dealer_contract.contract.functions.getResourceInventory().call()
 
+    def get_order_indices(self):
+        return self._dealer_contract.contract.functions.getOrderIndices().call()
+
     def get_orders(self):
         self._order_handler = utils.OrderHandler()
-        order_count = self._dealer_contract.contract.functions.order_count().call()
-
+        order_indices = self.get_order_indices()
+        print('order indices: {}'.format(order_indices))
         # get all orders from contract and store in order handler
-        for order_id in range(order_count):
+        for order_id in order_indices:
+            print('order id: {}'.format(order_id))
             order = self._dealer_contract.contract.functions.getOrder(order_id).call()
             self._order_handler.add_order(order_id, order)
     
+    def delete_order(self):
+        settled_orders = self.get_settled_order_indices()
+        for order_id in settled_orders:
+            self._dealer_contract.contract.functions.deleteOrder(order_id).transact({'from': self._account_address})
+
     def set_trades(self):
         self.set_trade_share()
         self.initiate_trade_calculation()

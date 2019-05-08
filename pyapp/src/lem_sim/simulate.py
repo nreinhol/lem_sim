@@ -33,7 +33,9 @@ def main(connection):
         agent.get_bill()
         agent.get_trade()
         agent.get_mkt_prices()
-        print(agent.bill, agent.trade)
+    
+    var.dealer.delete_order()
+    var.dealer.get_orders()
 
 
 
