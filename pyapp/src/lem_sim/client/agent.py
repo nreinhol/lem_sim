@@ -81,12 +81,12 @@ class Agent(object):
         self._dealer_contract.contract.functions.getTrade().transact({'from': self._account_address, 'value': bill})
 
     def set_order(self):
-        if(np.array_equal(self._bundle_set, np.array([0, 0], dtype=float))):
-            pass
-        else:
-            bundle_set = utils.prepare_for_sending(self._bundle_set)
-            bid = utils.prepare_for_sending(self._bid)
-            self._dealer_contract.contract.functions.setOrder(bundle_set, bid).transact({'from': self._account_address})
+        #if(np.array_equal(self._bundle_set, np.array([0, 0], dtype=float))):
+        #    pass
+        #else:
+        bundle_set = utils.prepare_for_sending(self._bundle_set)
+        bid = utils.prepare_for_sending(self._bid)
+        self._dealer_contract.contract.functions.setOrder(bundle_set, bid).transact({'from': self._account_address})
 
     def add_trade_to_shared_resources(self):
         self._optimization_problem.shared_resources = np.add(self._optimization_problem.shared_resources, self._trade)

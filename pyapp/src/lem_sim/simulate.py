@@ -14,20 +14,17 @@ def main(connection):
     var = mem.Variables(connection)
     lp.decompose(var)
     output.print_central_problem(var.central_problem)
-    var.dealer.set_mkt_prices()
+    for agent in var.agent_pool:
+        print(agent)
+    print(var.dealer)
     
+    var.dealer.set_mkt_prices()
     market_prices = var.dealer.mkt_prices
     equal_market_prices = False
-    iteration = 0
+    iteration = 1
+
     while(not equal_market_prices):
         ''' main simulation loop '''
-        
-        print('---------- Iteration {} ----------'.format(iteration))
-        for agent in var.agent_pool:
-            print(agent)
-
-        print(var.dealer)
-
 
         for agent in var.agent_pool:
             agent.get_mkt_prices()
@@ -47,6 +44,11 @@ def main(connection):
         var.dealer.delete_order()
         var.dealer.calculate_resource_inventory()
         var.dealer.set_mkt_prices()
+
+        print('---------- Iteration {} ----------'.format(iteration))
+        for agent in var.agent_pool:
+            print(agent)
+        print(var.dealer)
 
         iteration += 1
         if(np.array_equal(market_prices, var.dealer.mkt_prices)):

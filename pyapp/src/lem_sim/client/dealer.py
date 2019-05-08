@@ -84,10 +84,10 @@ class Dealer(object):
         print('bundles: ', bundles)
         print('bids', bids)
         try:
-            TARGET_COEFS = np.hstack(bids) * (-1)  # create target coef vector 
-            VARIABLE_LEQ_CONSTRAINT = np.identity(self._resource_inventory.size, dtype=float)  # create constraint matrix for y<=1
+            TARGET_COEFS = np.hstack(bids) * (-1)  # create target coef vector
+            self._mmp_amount_variables = np.size(TARGET_COEFS)  # set amount of variables 
+            VARIABLE_LEQ_CONSTRAINT = np.identity(self._mmp_amount_variables, dtype=float)  # create constraint matrix for y<=1
             CONSTRAINT_COEFS = np.concatenate((np.hstack(bundles), VARIABLE_LEQ_CONSTRAINT), axis=0)  # create final constraint matrix
-            self._mmp_amount_variables = np.size(CONSTRAINT_COEFS, 1)  # set amount of variables 
             CONSTRAINT_BOUNDS = np.concatenate((self._resource_inventory, np.ones(self._mmp_amount_variables, dtype=float)))
 
             self._mmp_constraint_coefs = matrix(CONSTRAINT_COEFS)
