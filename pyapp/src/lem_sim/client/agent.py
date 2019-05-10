@@ -16,6 +16,7 @@ class Agent(object):
         self._bill = None
         self._mkt_prices = None
         self._trade = None
+        self._objective = None
 
     @property
     def bill(self):
@@ -64,7 +65,8 @@ class Agent(object):
     def determine_bundle_attributes(self):
         result = solve_bundle_determination(self._optimization_problem, self._mkt_prices)
         self._bundle_set = result.x
-        self._bid = self._optimization_problem.solve().fun - result.fun
+        self._objective = self._optimization_problem.solve().fun
+        self._bid = self._objective - result.fun
 
     def get_mkt_prices(self):
         mkt_prices = self._dealer_contract.contract.functions.getMktPrices().call()
@@ -89,8 +91,9 @@ class Agent(object):
         self._optimization_problem.shared_resources = np.add(self._optimization_problem.shared_resources, self._trade)
 
     def __str__(self):
-        class_str = '\naccount: {}\norder: {}\nbid: {}\ntrade: {}\nbill: {}\nallocation: {}'.format(
+        class_str = '\naccount: {}\nobjective: {}\norder: {}\nbid: {}\ntrade: {}\nbill: {}\nallocation: {}'.format(
             self._account_address,
+            self._objective,
             self._bundle_set,
             self._bid,
             self._trade,
