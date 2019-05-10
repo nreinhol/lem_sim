@@ -1,7 +1,12 @@
 import numpy as np
+from web3 import Web3
 
 DECIMAL_PLACES = 2
 MULTIPLIER = 10**DECIMAL_PLACES
+
+
+def from_ether_to_wei(value):
+    return Web3.toWei(value, 'ether')
 
 
 def prepare_for_sending(value):
