@@ -39,9 +39,11 @@ def remove_zero_rows_of_individual_coefs(N):
 def distribute_shared_resources(c, amount_agents, dealer):
         ''' distribute the shared resources into equally sized parts '''
         distributed_resources = [np.divide(c, amount_agents + 1) for i in range(amount_agents + 1)]
-        distributed_resources = []
-        distributed_resources.append(np.array([3, 4]))
-        distributed_resources.append(np.array([4, 1]))
-        distributed_resources.append(np.array([1, 0]))
+        distributed_resources = [np.around(array, decimals=2) for array in distributed_resources]
+        # [float('%.2f' % element) for i in range(self._shared_resource_size)]
+        # distributed_resources = []
+        # distributed_resources.append(np.array([3, 4]))
+        # distributed_resources.append(np.array([4, 1]))
+        # distributed_resources.append(np.array([1, 0]))
         dealer.resource_inventory = distributed_resources.pop(0)
         return distributed_resources

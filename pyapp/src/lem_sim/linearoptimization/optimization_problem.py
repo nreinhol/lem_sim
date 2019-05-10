@@ -26,7 +26,7 @@ class OptimizationProblem(object):
     @property
     def shared_resources(self):
         return self._shared_resources
-    
+
     @shared_resources.setter
     def shared_resources(self, value):
         self._shared_resources = value

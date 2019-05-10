@@ -8,7 +8,7 @@ from lem_sim import globalmemory as mem
 class DealerValuesTest(unittest.TestCase):
 
     def test_shift_decimal_places(self):
-        bundle = [3.555, 4.666]
+        bundle = [3.55, 4.66]
         value = 3
 
         int_bundle = utils.shift_decimal_right(bundle)
@@ -18,10 +18,10 @@ class DealerValuesTest(unittest.TestCase):
         float_value = utils.shift_decimal_left(int_value)
 
         self.assertEqual(bundle, float_bundle)
-        self.assertEqual(int_bundle, [35550000000, 46660000000])
+        self.assertEqual(int_bundle, [355, 466])
 
         self.assertEqual(value, float_value)
-        self.assertEqual(int_value, 30000000000)
+        self.assertEqual(int_value, 300)
 
     def test_prepare_for_sending(self):
         array = np.array([1, 2, 3])
@@ -42,7 +42,7 @@ class DealerValuesTest(unittest.TestCase):
         self.assertIsInstance(prepared_list, np.ndarray)
         self.assertIsInstance(prepared_list[0], float)
         self.assertIsInstance(prepared_value, float)
-    
+
     def test_create_trades(self):
         first_order = ['account_1', [8, 3], 6]
         second_order = ['account_1', [2, 9], 3]
@@ -57,5 +57,4 @@ class DealerValuesTest(unittest.TestCase):
         dealer._order_handler.add_order(1, second_order)
         dealer._order_handler.add_order(2, third_order)
         dealer._order_handler.add_order(3, fourth_order)
-
         dealer.set_trade_share()

@@ -1,4 +1,5 @@
 import numpy as np
+import logging
 
 from lem_sim import utils
 
@@ -18,7 +19,7 @@ class OrderHandler(object):
         else:
             self._pool[account] = Orders(account)
             self._pool[account].add_order(bundle, bid, order_id)
- 
+
     def get_all_accounts(self):
         return self._pool.keys()
 
@@ -26,7 +27,7 @@ class OrderHandler(object):
         return self._pool[account]
 
     def get_all_orders(self):
-        return [self._pool[account] for account in self._pool.keys()]   
+        return [self._pool[account] for account in self._pool.keys()]
 
 
 class Orders(object):
@@ -47,11 +48,11 @@ class Orders(object):
     @property
     def bundles(self):
         return self._bundles
-    
+
     @property
     def indices(self):
         return self._indices
-    
+
     @property
     def trade(self):
         return self._trade
@@ -59,11 +60,11 @@ class Orders(object):
     @property
     def amount_orders(self):
         return len(self._bundles)
-    
+
     @property
     def trade_share(self):
         return self._trade_share
-    
+
     @trade_share.setter
     def trade_share(self, value):
         self._trade_share = value
@@ -78,16 +79,23 @@ class Orders(object):
 
     def get_concatenated_bids(self):
         return np.array(self._bids)
-    
+
     def calculate_trade(self):
         self._trade = sum([bundle * trade_share for bundle, trade_share in zip(self._bundles, self._trade_share)])
+        logging.info('orders.calculate_trade() called')
+        logging.info('trade of orders: {}'.format(self._trade))
+        logging.info('trade_share of orders: {}'.format(self._trade_share))
 
     def calculate_bill(self, mkt_prices):
+        logging.info('orders.calculate_bill() called')
+        logging.info('trade: {}'.format(self._trade))
+        logging.info('mkt_prices: {}'.format(mkt_prices))
         self._bill = np.sum(np.multiply(self._trade, mkt_prices))
-    
+
+        logging.info('bill of orders: {}'.format(self._bill))
+
     def get_trade_information(self):
         trade = utils.prepare_for_sending(self._trade)
         bill = utils.prepare_for_sending(self._bill)
 
         return self._account, trade, bill
-

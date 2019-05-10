@@ -17,7 +17,7 @@ def main(connection):
     for agent in var.agent_pool:
         print(agent)
     print(var.dealer)
-    
+
     var.dealer.set_mkt_prices()
     market_prices = var.dealer.mkt_prices
     equal_market_prices = False
@@ -40,7 +40,7 @@ def main(connection):
             agent.get_bill()
             agent.get_trade()
             agent.add_trade_to_shared_resources()
-        
+
         var.dealer.delete_order()
         var.dealer.calculate_resource_inventory()
         var.dealer.set_mkt_prices()

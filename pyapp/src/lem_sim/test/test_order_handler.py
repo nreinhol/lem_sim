@@ -6,7 +6,7 @@ from lem_sim import utils
 
 
 class OrdersTest(unittest.TestCase):
-    
+
     def test_get_concatenated_bundles(self):
         orders = utils.Orders('test09')
 
@@ -44,6 +44,3 @@ class OrdersTest(unittest.TestCase):
         for order in orders:
             order.calculate_trade()
             trades.append(order._trade)
-        
-        print(trades)
-

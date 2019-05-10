@@ -24,9 +24,3 @@ class DealerFunctionsTest(unittest.TestCase):
         agent.get_mkt_prices()
 
         self.assertTrue(np.array_equal(dealer.mkt_prices, agent.mkt_prices))
-    
-    def test_order_indices(self):
-        var = mem.Variables('ip')
-        dealer = var.dealer
-        order_indices = dealer.get_order_indices()
-        print(order_indices)

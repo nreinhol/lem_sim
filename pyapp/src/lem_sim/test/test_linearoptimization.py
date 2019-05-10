@@ -65,7 +65,7 @@ class LinearOptimizationTest(unittest.TestCase):
         A = matrix(CONSTRAINT_COEFS)
         b = matrix(CONSTRAINT_BOUNDS)
         c = matrix(TARGET_COEFS)
-        solvers.options['show_progress'] = False
+        # solvers.options['show_progress'] = False
         sol = solvers.lp(c, A, b)
 
         y_1 = float('%.5f' % (sol['x'][0]))
@@ -74,6 +74,32 @@ class LinearOptimizationTest(unittest.TestCase):
         mkt_price_w2 = float('%.5f' % (sol['z'][1]))
 
         self.assertEqual([y_1, y_2, mkt_price_w1, mkt_price_w2], [0.12500, 1.00000, 0.75000, 0.00000])
+
+    def test_mmp_bugfix(self):
+        TARGET_COEFS = np.array([-0.5, 0], dtype=float)
+        CONSTRAINT_COEFS = np.array([[1, 0], [0, 0], [1, 0], [0, 1], [-1, 0], [0, -1]], dtype=float)
+        CONSTRAINT_BOUNDS = np.array([0, 0, 1, 1, 0, 0], dtype=float)
+
+        A = matrix(CONSTRAINT_COEFS)
+        b = matrix(CONSTRAINT_BOUNDS)
+        c = matrix(TARGET_COEFS)
+        solvers.options['show_progress'] = False
+        sol = solvers.lp(c, A, b)
+
+        self.assertIsNotNone(sol)
+
+    def test_mmp_bugfix_second(self):
+        TARGET_COEFS = np.array([3.5, -4.5, 1.5], dtype=float)
+        CONSTRAINT_COEFS = np.array([[-5, 7, 3], [-2, 2, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1], [-1, 0, 0], [0, -1, 0], [0, 0, -1]], dtype=float)
+        CONSTRAINT_BOUNDS = np.array([0, 0, 1, 1, 1, 0, 0, 0], dtype=float)
+
+        A = matrix(CONSTRAINT_COEFS)
+        b = matrix(CONSTRAINT_BOUNDS)
+        c = matrix(TARGET_COEFS)
+        solvers.options['show_progress'] = False
+        sol = solvers.lp(c, A, b)
+
+        self.assertIsNotNone(sol)
 
 
 if __name__ == '__main__':
