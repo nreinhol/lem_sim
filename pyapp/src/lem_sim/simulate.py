@@ -35,15 +35,14 @@ def main(connection):
         var.dealer.create_mmp()
         var.dealer.solve_mmp()
         var.dealer.set_trades()
+        var.dealer.delete_order()
+        var.dealer.calculate_resource_inventory()
+        var.dealer.set_mkt_prices()
 
         for agent in var.agent_pool:
             agent.get_bill()
             agent.get_trade()
             agent.add_trade_to_shared_resources()
-
-        var.dealer.delete_order()
-        var.dealer.calculate_resource_inventory()
-        var.dealer.set_mkt_prices()
 
         print('\n---------- Iteration {} ----------'.format(iteration))
         print(var.dealer)

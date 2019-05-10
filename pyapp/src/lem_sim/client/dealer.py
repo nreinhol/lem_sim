@@ -67,19 +67,14 @@ class Dealer(object):
     def get_orders(self):
         self._order_handler = utils.OrderHandler()
         order_indices = self.get_order_indices()
-        logging.info('dealer.get_orders() called')
-        logging.info('order indices: {}'.format(order_indices))
 
         # get all orders from contract and store in order handler
         for order_id in order_indices:
             order = self._dealer_contract.contract.functions.getOrder(order_id).call()
-            logging.info('contract order {}: {}'.format(order_id, order))
             self._order_handler.add_order(order_id, order)
 
     def delete_order(self):
         settled_orders = self.get_settled_order_indices()
-        logging.info('dealer.delete_order() called')
-        logging.info('settled orders: {}'.format(settled_orders))
         for order_id in settled_orders:
             self._dealer_contract.contract.functions.deleteOrder(order_id).transact({'from': self._account_address, 'gas': 300000})
 
@@ -87,9 +82,13 @@ class Dealer(object):
         self.set_trade_share()
         self.initiate_trade_calculation()
         self.initiate_bill_calculation()
-
+        logging.info('DEALER SET TRADES:')
         for order in self._order_handler.get_all_orders():
             account, trade, bill = order.get_trade_information()
+            logging.info('Account: {}'.format(account))
+            logging.info('Bill: {}'.format(bill))
+            bill = utils.from_ether_to_wei(bill) # set bill in wei
+            logging.info('Bill in wei: {}'.format(bill))
             self._dealer_contract.contract.functions.setTrade(account, trade, bill).transact({'from': self._account_address})
 
     def create_mmp(self):
@@ -109,8 +108,6 @@ class Dealer(object):
 
             CONSTRAINT_COEFS = np.concatenate((mmp_coefs, var_leq_one_coefs, var_geq_zero_coefs), axis=0)  # create final constraint matrix
             CONSTRAINT_BOUNDS = np.concatenate((mmp_bounds, var_leq_one_bounds, var_geq_zero_bounds))  # create final bounds matrix
-            logging.info('dealer.create_mmp() called')
-            logging.info('MarketMatchingProblem:\nTargetCoefs: {}\nConstraintCoefs: {}\nConstraintBounds: {}'.format(TARGET_COEFS, CONSTRAINT_COEFS, CONSTRAINT_BOUNDS))
 
             self._mmp_constraint_coefs = matrix(CONSTRAINT_COEFS)
             self._mmp_constraint_bounds = matrix(CONSTRAINT_BOUNDS)
@@ -129,8 +126,6 @@ class Dealer(object):
     def set_trade_share(self):
         amount_orders = [order.amount_orders for order in self._order_handler.get_all_orders()]
         trade_share = self._mmp_values
-        logging.info('dealer.set_trade_share() called')
-        logging.info('amount orders: {}\ntrade_share: {}'.format(amount_orders, trade_share))
         for amount, orders in zip(amount_orders, self._order_handler.get_all_orders()):
             orders.trade_share = trade_share[0:amount]
             trade_share = trade_share[amount:]

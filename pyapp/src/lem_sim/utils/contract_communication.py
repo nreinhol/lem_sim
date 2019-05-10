@@ -9,6 +9,10 @@ def from_ether_to_wei(value):
     return Web3.toWei(value, 'ether')
 
 
+def from_wei_to_ether(value):
+    return Web3.fromWei(value, 'ether')
+
+
 def prepare_for_sending(value):
     if type(value) is np.ndarray:
         value = value.tolist()

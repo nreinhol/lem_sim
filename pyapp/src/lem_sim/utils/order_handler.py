@@ -1,5 +1,4 @@
 import numpy as np
-import logging
 
 from lem_sim import utils
 
@@ -82,20 +81,12 @@ class Orders(object):
 
     def calculate_trade(self):
         self._trade = sum([bundle * trade_share for bundle, trade_share in zip(self._bundles, self._trade_share)])
-        logging.info('orders.calculate_trade() called')
-        logging.info('trade of orders: {}'.format(self._trade))
-        logging.info('trade_share of orders: {}'.format(self._trade_share))
 
     def calculate_bill(self, mkt_prices):
-        logging.info('orders.calculate_bill() called')
-        logging.info('trade: {}'.format(self._trade))
-        logging.info('mkt_prices: {}'.format(mkt_prices))
         self._bill = np.sum(np.multiply(self._trade, mkt_prices))
-
-        logging.info('bill of orders: {}'.format(self._bill))
 
     def get_trade_information(self):
         trade = utils.prepare_for_sending(self._trade)
-        bill = utils.prepare_for_sending(self._bill)
+        # bill = utils.prepare_for_sending(self._bill)
 
-        return self._account, trade, bill
+        return self._account, trade, self._bill

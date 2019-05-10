@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.optimize import linprog
+import logging
 
 from lem_sim import utils
 
@@ -17,6 +18,7 @@ class Agent(object):
         self._mkt_prices = None
         self._trade = None
         self._objective = None
+        self._wealth = None
 
     @property
     def bill(self):
@@ -36,7 +38,8 @@ class Agent(object):
 
     @property
     def balance(self):
-        return self._provider.eth.getBalance(self._account_address)
+        balance = self._provider.eth.getBalance(self._account_address)
+        return float(utils.from_wei_to_ether(balance))
 
     @property
     def bundle_set(self):
@@ -66,6 +69,7 @@ class Agent(object):
         result = solve_bundle_determination(self._optimization_problem, self._mkt_prices)
         self._bundle_set = result.x
         self._objective = self._optimization_problem.solve().fun
+        self._wealth = self.balance + abs(self._objective)
         self._bid = self._objective - result.fun
 
     def get_mkt_prices(self):
@@ -73,11 +77,17 @@ class Agent(object):
         self._mkt_prices = utils.prepare_for_storing(mkt_prices)
 
     def get_bill(self):
+        logging.info('Agent get_bill() called')
         bill = self._dealer_contract.contract.functions.getBill().call({'from': self._account_address})
-        self._bill = utils.prepare_for_storing(bill)
+        logging.info('received Bill from contract: {}'.format(bill))
+        self._bill = utils.from_wei_to_ether(bill)
+        logging.info('Bill after storing: {}'.format(self._bill))
 
     def get_trade(self):
-        bill = utils.prepare_for_sending(self._bill)
+        logging.info('AGENT GET TRADE:')
+        logging.info('Account: {}'.format(self._account_address))
+        bill = utils.from_ether_to_wei(self._bill)
+        logging.info('Bill in wei: {}'.format(bill))
         trade = self._dealer_contract.contract.functions.getTrade().call({'from': self._account_address, 'value': bill})
         self._trade = utils.prepare_for_storing(trade)
         self._dealer_contract.contract.functions.getTrade().transact({'from': self._account_address, 'value': bill})
@@ -91,9 +101,11 @@ class Agent(object):
         self._optimization_problem.shared_resources = np.add(self._optimization_problem.shared_resources, self._trade)
 
     def __str__(self):
-        class_str = '\naccount: {}\nobjective: {}\norder: {}\nbid: {}\ntrade: {}\nbill: {}\nallocation: {}'.format(
+        class_str = '\naccount: {}\nbalance: {} ether\nobjective: {}\nwealth: {}\norder: {}\nbid: {} ether\ntrade: {}\nbill: {} ether\nallocation: {}'.format(
             self._account_address,
+            self.balance,
             self._objective,
+            self._wealth,
             self._bundle_set,
             self._bid,
             self._trade,
