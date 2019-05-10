@@ -14,9 +14,9 @@ def main(connection):
     var = mem.Variables(connection)
     lp.decompose(var)
     output.print_central_problem(var.central_problem)
+    print(var.dealer)
     for agent in var.agent_pool:
         print(agent)
-    print(var.dealer)
 
     var.dealer.set_mkt_prices()
     market_prices = var.dealer.mkt_prices
@@ -45,10 +45,10 @@ def main(connection):
         var.dealer.calculate_resource_inventory()
         var.dealer.set_mkt_prices()
 
-        print('---------- Iteration {} ----------'.format(iteration))
+        print('\n---------- Iteration {} ----------'.format(iteration))
+        print(var.dealer)
         for agent in var.agent_pool:
             print(agent)
-        print(var.dealer)
 
         iteration += 1
         if(np.array_equal(market_prices, var.dealer.mkt_prices)):
