@@ -82,17 +82,11 @@ contract Dealer{
 
     function deleteOrder(uint32 index) public onlyByOwner() {
         delete orders[index];
-        if (index >= order_indices.length) {
-            delete order_indices;
-        }
-        else {
-            delete order_indices[index];
-        
-            for (uint i = index; i<order_indices.length-1; i++){
-                order_indices[i] = order_indices[i+1];
-            }
-            order_indices.length--;        
-        }
+        for (uint i = index; i < order_indices.length - 1; i++) {
+            order_indices[index] = order_indices[index + 1];
+        }           
+        delete order_indices[order_indices.length - 1];
+        order_indices.length--;
     }
 
     function setResourceInventory (int256[] _resource_inventory) public onlyByOwner() {
