@@ -62,7 +62,7 @@ class Dealer(object):
         return self._dealer_contract.contract.functions.getResourceInventory().call()
 
     def get_order_indices(self):
-        return self._dealer_contract.contract.functions.getOrderIndices().call()
+        return list(filter(None, self._dealer_contract.contract.functions.getOrderIndices().call()))
 
     def get_orders(self):
         self._order_handler = utils.OrderHandler()

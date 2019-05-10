@@ -16,7 +16,7 @@ contract Dealer{
 
     constructor() public {
         _owner = msg.sender;
-        order_count = 0;
+        order_count = 1;
     }
 
     modifier checkPayment() {
@@ -82,11 +82,7 @@ contract Dealer{
 
     function deleteOrder(uint32 index) public onlyByOwner() {
         delete orders[index];
-        for (uint i = index; i < order_indices.length - 1; i++) {
-            order_indices[index] = order_indices[index + 1];
-        }           
-        delete order_indices[order_indices.length - 1];
-        order_indices.length--;
+        delete order_indices[index - 1];
     }
 
     function setResourceInventory (int256[] _resource_inventory) public onlyByOwner() {
