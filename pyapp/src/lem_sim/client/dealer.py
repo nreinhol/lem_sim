@@ -158,10 +158,9 @@ class Dealer(object):
         self._resource_inventory = utils.truncate_values_of_array(self._resource_inventory - self._trade)
 
     def __str__(self):
-        class_str = '\nDEALER\ndealer inventory: {}\ndealer trade: {}\nmarket price: {}\nmmp values: {}'.format(
+        class_str = '\nDEALER\ndealer inventory: {}\ndealer trade: {}\nmarket price: {}'.format(
             self._resource_inventory,
             self._trade,
             self._mkt_prices,
-            self._mmp_values
         )
         return class_str
