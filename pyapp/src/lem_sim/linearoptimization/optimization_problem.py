@@ -47,3 +47,14 @@ class OptimizationProblem(object):
         print('Individual Resources:\n', self._individual_resources)
         print('Shared Coefficients:', *self._shared_coefs, sep='\n')
         print('Shared Resources:\n', self._shared_resources)
+
+    def __str__(self):
+        class_str = 'Target Coefficients:\n{}\nIndividual Coefficients:\n{}\nIndividual Resources:\n{}\nShared Coefficients:\n{}\nShared Resources:\n{}'.format(
+            self._target_coefs,
+            self._individual_coefs,
+            self._individual_resources,
+            self._shared_coefs,
+            self._shared_resources
+        )
+
+        return class_str

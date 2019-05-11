@@ -1,16 +1,9 @@
 import numpy as np
-import logging
 from cvxopt import matrix, solvers
 from datetime import datetime
 
 from lem_sim import utils
 from lem_sim import PROJECT_DIR
-
-
-start_time_string = datetime.now().strftime('%d-%m:%H-%M')
-logging.basicConfig(format='%(asctime)s - %(levelname)s: %(message)s',
-                    filename='{}/logs/{}_debug_dealer.log'.format(PROJECT_DIR, start_time_string),
-                    level=logging.INFO)
 
 
 class Dealer(object):
@@ -82,13 +75,9 @@ class Dealer(object):
         self.set_trade_share()
         self.initiate_trade_calculation()
         self.initiate_bill_calculation()
-        logging.info('DEALER SET TRADES:')
         for order in self._order_handler.get_all_orders():
             account, trade, bill = order.get_trade_information()
-            logging.info('Account: {}'.format(account))
-            logging.info('Bill: {}'.format(bill))
             bill = utils.from_ether_to_wei(bill)
-            logging.info('Bill in wei: {}'.format(bill))
             self._dealer_contract.contract.functions.setTrade(account, trade, bill).transact({'from': self._account_address})
 
     def create_mmp(self):
