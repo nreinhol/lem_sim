@@ -1,4 +1,4 @@
-import click
+import click as c
 import numpy as np
 
 from lem_sim import globalmemory as mem
@@ -6,8 +6,8 @@ from lem_sim import linearoptimization as lp
 from lem_sim import output
 
 
-@click.command()
-@click.option('--connection', type=click.Choice(['docker', 'ip']), default='docker')
+@c.command()
+@c.option('--connection', type=c.Choice(['docker', 'ip']), default='docker')
 def main(connection):
 
     ''' initial setup of simulation '''
@@ -44,10 +44,7 @@ def main(connection):
             agent.get_trade()
             agent.add_trade_to_shared_resources()
 
-        print('\n---------- Iteration {} ----------'.format(iteration))
-        print(var.dealer)
-        for agent in var.agent_pool:
-            print(agent)
+        output.print_iteration_stats(var, iteration)
 
         iteration += 1
         if(np.array_equal(market_prices, var.dealer.mkt_prices)):
