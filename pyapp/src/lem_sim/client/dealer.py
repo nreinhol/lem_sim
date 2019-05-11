@@ -87,7 +87,7 @@ class Dealer(object):
             account, trade, bill = order.get_trade_information()
             logging.info('Account: {}'.format(account))
             logging.info('Bill: {}'.format(bill))
-            bill = utils.from_ether_to_wei(bill) # set bill in wei
+            bill = utils.from_ether_to_wei(bill)
             logging.info('Bill in wei: {}'.format(bill))
             self._dealer_contract.contract.functions.setTrade(account, trade, bill).transact({'from': self._account_address})
 
@@ -153,7 +153,8 @@ class Dealer(object):
         self._resource_inventory = utils.truncate_values_of_array(self._resource_inventory - self._trade)
 
     def __str__(self):
-        class_str = '\nDEALER\ndealer inventory: {}\ndealer trade: {}\nmarket price: {}'.format(
+        class_str = '\nDEALER\naccount: {}\ndealer inventory: {}\ndealer trade: {}\nmarket price: {}'.format(
+            self._account_address,
             self._resource_inventory,
             self._trade,
             self._mkt_prices,
