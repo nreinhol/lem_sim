@@ -1,5 +1,6 @@
 from lem_sim import output
 
+
 def initial_setup(var):
     output.print_initial_setup(var)
     output.log_initial_setup(var)

@@ -1,9 +1,7 @@
 import numpy as np
 from cvxopt import matrix, solvers
-from datetime import datetime
 
 from lem_sim import utils
-from lem_sim import PROJECT_DIR
 
 
 class Dealer(object):
