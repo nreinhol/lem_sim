@@ -7,7 +7,8 @@ from lem_sim import utils
 
 class Agent(object):
 
-    def __init__(self, account_address, provider, dealer_contract):
+    def __init__(self, agent_number, account_address, provider, dealer_contract):
+        self._name = 'AGENT{}'.format(agent_number)
         self._account_address = account_address
         self._provider = provider
         self._dealer_contract = dealer_contract
@@ -19,6 +20,10 @@ class Agent(object):
         self._trade = None
         self._objective = None
         self._wealth = None
+
+    @property
+    def name(self):
+        return self._name
 
     @property
     def bill(self):
@@ -101,7 +106,8 @@ class Agent(object):
         self._optimization_problem.shared_resources = np.add(self._optimization_problem.shared_resources, self._trade)
 
     def __str__(self):
-        class_str = '\naccount: {}\nbalance: {} ether\nobjective: {}\nwealth: {}\norder: {}\nbid: {} ether\ntrade: {}\nbill: {} ether\nallocation: {}'.format(
+        class_str = '\n{}\naccount: {}\nbalance: {} ether\nobjective: {}\nwealth: {}\norder: {}\nbid: {} ether\ntrade: {}\nbill: {} ether\nallocation: {}'.format(
+            self._name,
             self._account_address,
             self.balance,
             self._objective,

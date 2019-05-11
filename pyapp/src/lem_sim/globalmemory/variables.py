@@ -21,7 +21,7 @@ class Variables(object):
         self._dealer_contract = contract.ContractHandler(self._web3, 'Dealer.json')
         self._accounts = self._web3.eth.accounts
         self._dealer = client.Dealer(self._accounts.pop(0), self._web3, self._dealer_contract, self._central_problem.shared_resources.size)
-        self._agent_pool = [client.Agent(account, self._web3, self._dealer_contract) for account in self._accounts]
+        self._agent_pool = [client.Agent(number, account, self._web3, self._dealer_contract) for number, account in enumerate(self._accounts, 1)]
         self._amount_agents = len(self._agent_pool)
 
     @property
