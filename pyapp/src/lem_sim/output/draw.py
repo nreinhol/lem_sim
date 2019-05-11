@@ -14,7 +14,8 @@ def print_initial_setup(var):
 
 
 def print_iteration_stats(var, iteration):
-        c.secho('\n__________ Iteration {} __________ '.format(iteration), fg='green', bold=True)
+        c.secho('\n__________________________________ ', fg='green', bold=True)
+        c.secho('ITERATION {}'.format(iteration), fg='green', bold=True)
         c.secho(var.dealer.__str__())
 
         for agent in var.agent_pool:

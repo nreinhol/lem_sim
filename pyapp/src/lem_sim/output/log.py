@@ -21,7 +21,8 @@ def log_initial_setup(var):
 
 
 def log_iteration_stats(var, iteration):
-    logging.info('\n__________ Iteration {} __________'.format(iteration))
+    logging.info('\n__________________________________')
+    logging.info('ITERATION {}'.format(iteration))
     logging.info(var.dealer)
 
     for agent in var.agent_pool:
