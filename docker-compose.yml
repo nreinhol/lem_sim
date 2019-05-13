@@ -5,7 +5,7 @@ services:
     image: trufflesuite/ganache-cli:v6.4.1 
     ports:
       - "8545:8545"
-    command: ["-a 3", "-e 100", "-b 10"]
+    command: ["-a 3", "-e 100"]
   agents:
     build: .
     depends_on:

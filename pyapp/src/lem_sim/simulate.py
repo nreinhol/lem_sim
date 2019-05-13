@@ -1,5 +1,6 @@
 import click as c
 import numpy as np
+import threading
 
 from lem_sim import globalmemory as mem
 from lem_sim import linearoptimization as lp
@@ -26,21 +27,24 @@ def main(connection):
     while(not equal_market_prices):
 
         for agent in var.agent_pool:
-            agent.get_mkt_prices()
+            agent.get_mkt_prices()  # call
             agent.determine_bundle_attributes()
-            agent.set_order()
 
-        var.dealer.get_orders()
+            t = threading.Thread(target=agent.set_order())
+            t.start()
+            # agent.set_order()  # transact
+
+        var.dealer.get_orders()  # call
         var.dealer.create_mmp()
         var.dealer.solve_mmp()
-        var.dealer.set_trades()
-        var.dealer.delete_order()
+        var.dealer.set_trades()  # transact
+        var.dealer.delete_order()  # transact
         var.dealer.calculate_resource_inventory()
-        var.dealer.set_mkt_prices()
+        var.dealer.set_mkt_prices()  # transact
 
         for agent in var.agent_pool:
-            agent.get_bill()
-            agent.get_trade()
+            agent.get_bill()  # call
+            agent.get_trade()  # transact
             agent.add_trade_to_shared_resources()
 
         output.iteration_stats(var, iteration)
