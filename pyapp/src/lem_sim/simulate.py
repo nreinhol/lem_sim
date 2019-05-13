@@ -13,8 +13,10 @@ def main(connection):
     # initial setup of simulation
     var = mem.Variables(connection)
     lp.decompose(var)
+
     var.dealer.set_mkt_prices()
     market_prices = var.dealer.mkt_prices
+
     equal_market_prices = False
     iteration = 1
 
