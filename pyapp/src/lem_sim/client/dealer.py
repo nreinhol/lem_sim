@@ -48,7 +48,7 @@ class Dealer(object):
         tx = self._dealer_contract.contract.functions.setMktPrices(mkt_prices).transact({'from': self._account_address})
 
         while self._provider.eth.getTransactionReceipt(tx) is None:
-            time.sleep(5)
+            time.sleep(1)
 
     def set_resource_inventory(self):
         self._dealer_contract.contract.functions.setResourceInventory(self._resource_inventory)

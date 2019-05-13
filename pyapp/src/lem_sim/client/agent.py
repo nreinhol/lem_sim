@@ -101,7 +101,7 @@ class Agent(object):
         tx = self._dealer_contract.contract.functions.setOrder(bundle_set, bid).transact({'from': self._account_address})
 
         while self._provider.eth.getTransactionReceipt(tx) is None:
-            time.sleep(5)
+            time.sleep(1)
 
     def add_trade_to_shared_resources(self):
         self._optimization_problem.shared_resources = np.add(self._optimization_problem.shared_resources, self._trade)
