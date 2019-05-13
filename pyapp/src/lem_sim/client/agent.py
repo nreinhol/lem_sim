@@ -25,6 +25,10 @@ class Agent(object):
         return self._name
 
     @property
+    def objective(self):
+        return self._objective
+
+    @property
     def bill(self):
         return self._bill
 
