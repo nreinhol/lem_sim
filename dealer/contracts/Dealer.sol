@@ -14,6 +14,10 @@ contract Dealer{
     mapping(address => int256[]) private trades;
     mapping(address => uint256) public bills;
 
+    event ReceivedOrder(address from, int256[] bundle, int256 bid, uint32 index);
+    event DeletedOrder(uint32 index);
+    event StoredTrade(address receiver, int256[] trade, uint256 payment);
+
     constructor() public {
         _owner = msg.sender;
         order_count = 1;
@@ -44,6 +48,8 @@ contract Dealer{
     function setTrade(address _account, int256[] _trade, uint256 _payment) public onlyByOwner() {
         trades[_account] = _trade;
         bills[_account] = _payment;
+
+        emit StoredTrade(_account, _trade, _payment);
     }
 
     function getTrade() checkPayment() payable public returns (int256[]) {
@@ -60,12 +66,22 @@ contract Dealer{
 
         orders[order_count] = new_order;
         order_indices.push(order_count);
+
+        emit ReceivedOrder(new_order.account, new_order.bundle, new_order.bid, order_count);
+
         // increment order count
         order_count ++;        
     }
 
     function getOrder(uint32 order_id) public view returns (address, int256[], int256) {
         return (orders[order_id].account, orders[order_id].bundle, orders[order_id].bid);
+    }
+
+    function deleteOrder(uint32 index) public onlyByOwner() {
+        delete orders[index];
+        delete order_indices[index - 1];
+
+        emit DeletedOrder(index);
     }
 
     function setMktPrices(int256[] _mkt_prices) public onlyByOwner() {
@@ -78,11 +94,6 @@ contract Dealer{
 
     function getOrderIndices() public view returns (uint32[]) {
         return order_indices;
-    }
-
-    function deleteOrder(uint32 index) public onlyByOwner() {
-        delete orders[index];
-        delete order_indices[index - 1];
     }
 
     function setResourceInventory (int256[] _resource_inventory) public onlyByOwner() {
