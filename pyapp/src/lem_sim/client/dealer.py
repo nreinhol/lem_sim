@@ -1,5 +1,6 @@
 import numpy as np
 from cvxopt import matrix, solvers
+import time
 
 from lem_sim import utils
 
@@ -44,7 +45,10 @@ class Dealer(object):
 
     def set_mkt_prices(self):
         mkt_prices = utils.prepare_for_sending(self._mkt_prices)
-        self._dealer_contract.contract.functions.setMktPrices(mkt_prices).transact({'from': self._account_address})
+        tx = self._dealer_contract.contract.functions.setMktPrices(mkt_prices).transact({'from': self._account_address})
+
+        while self._provider.eth.getTransactionReceipt(tx) is None:
+            time.sleep(5)
 
     def set_resource_inventory(self):
         self._dealer_contract.contract.functions.setResourceInventory(self._resource_inventory)

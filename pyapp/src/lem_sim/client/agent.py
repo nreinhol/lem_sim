@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.optimize import linprog
+import time
 
 from lem_sim import utils
 
@@ -97,7 +98,10 @@ class Agent(object):
     def set_order(self):
         bundle_set = utils.prepare_for_sending(self._bundle_set)
         bid = utils.prepare_for_sending(self._bid)
-        self._dealer_contract.contract.functions.setOrder(bundle_set, bid).transact({'from': self._account_address})
+        tx = self._dealer_contract.contract.functions.setOrder(bundle_set, bid).transact({'from': self._account_address})
+
+        while self._provider.eth.getTransactionReceipt(tx) is None:
+            time.sleep(5)
 
     def add_trade_to_shared_resources(self):
         self._optimization_problem.shared_resources = np.add(self._optimization_problem.shared_resources, self._trade)
