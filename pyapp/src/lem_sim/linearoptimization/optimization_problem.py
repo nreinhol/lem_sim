@@ -41,13 +41,6 @@ class OptimizationProblem(object):
 
         return linprog(self._target_coefs, constraint_coefs, constraint_resources)
 
-    def show(self):
-        print('Target Coefficients:\n', self._target_coefs)
-        print('Individual Coefficients:', *self._individual_coefs, sep='\n')
-        print('Individual Resources:\n', self._individual_resources)
-        print('Shared Coefficients:', *self._shared_coefs, sep='\n')
-        print('Shared Resources:\n', self._shared_resources)
-
     def __str__(self):
         class_str = 'Target Coefficients:\n{}\nIndividual Coefficients:\n{}\nIndividual Resources:\n{}\nShared Coefficients:\n{}\nShared Resources:\n{}'.format(
             self._target_coefs,
