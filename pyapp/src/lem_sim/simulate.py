@@ -36,7 +36,7 @@ def main(connection):
         var.dealer.set_trades()  # transact
         var.dealer.delete_order()  # transact
         var.dealer.calculate_resource_inventory()
-        var.dealer.set_mkt_prices()  # transact
+        var.dealer.set_mmp_attributes()  # transact
 
         for agent in var.agent_pool:
             agent.get_bill()  # call
