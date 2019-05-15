@@ -6,14 +6,24 @@ pragma solidity ^0.4.25;
 
 contract Dealer{ 
     address private _owner;
+    int256[] public resource_inventory;
+    
+    // attributes for order handling
     uint32 public order_count;
     uint32[] public order_indices;
-    int256[] public mkt_prices;
-    int256[] public resource_inventory;
     mapping(uint32 => Order) public orders;
+
+    // attributes for the mmp
+    int256[] public mkt_prices; // duals
+    int256[] public mmp_values;
+    int256[] public mmp_target_coefs;
+    int256[] public mmp_bounds;
+
+    // attributes for trade handling
     mapping(address => int256[]) private trades;
     mapping(address => uint256) public bills;
 
+    // events
     event ReceivedOrder(address from, int256[] bundle, int256 bid, uint32 index);
     event DeletedOrder(uint32 index);
     event StoredTrade(address receiver, int256[] trade, uint256 payment);
@@ -43,6 +53,17 @@ contract Dealer{
         address account;
         int256[] bundle;
         int256 bid;
+    }
+
+    function setMMPAttributes(int256[] _mmp_values, int256[] _mkt_prices, int256[] _mmp_target_coefs, int256[] _mmp_bounds) public onlyByOwner() {
+        mmp_values = _mmp_values;
+        mmp_target_coefs = _mmp_target_coefs;
+        mmp_bounds = _mmp_bounds;
+        mkt_prices = _mkt_prices;
+    }
+
+    function getMMPAttributes() public view returns (int256[], int256[], int256[], int256[]) {
+        return (mmp_values, mkt_prices, mmp_target_coefs, mmp_bounds);
     }
 
     function setTrade(address _account, int256[] _trade, uint256 _payment) public onlyByOwner() {
