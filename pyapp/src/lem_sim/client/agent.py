@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.optimize import linprog
 import time
+import math
 
 from lem_sim import utils
 
@@ -84,6 +85,27 @@ class Agent(object):
     def get_mkt_prices(self):
         mkt_prices = self._dealer_contract.contract.functions.getMktPrices().call()
         self._mkt_prices = utils.prepare_for_storing(mkt_prices)
+
+    def get_mmp_attributes(self):
+        mmp_attributes = self._dealer_contract.contract.functions.getMMPAttributes().call()
+        mmp_values = utils.prepare_for_storing(mmp_attributes[0])
+        mmp_duals = utils.prepare_for_storing(mmp_attributes[1])
+        mmp_target_coefs = utils.prepare_for_storing(mmp_attributes[2])
+        mmp_bounds = utils.prepare_for_storing(mmp_attributes[3])
+
+        return mmp_values, mmp_duals, mmp_target_coefs, mmp_bounds
+
+    def verify_strong_duality(self):
+        mmp_values, mmp_duals, mmp_target_coefs, mmp_bounds = self.get_mmp_attributes()
+        primal_bound = (-np.sum(mmp_values * mmp_target_coefs)) 
+        dual_bound = np.sum(mmp_duals * mmp_bounds)
+        primal_bound = math.floor(primal_bound * 10) / 10
+        dual_bound = math.floor(dual_bound * 10) / 10
+
+        if primal_bound == dual_bound:
+            return True
+        else:
+            return False
 
     def get_bill(self):
         bill = self._dealer_contract.contract.functions.getBill().call({'from': self._account_address})
