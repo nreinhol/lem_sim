@@ -12,4 +12,4 @@ class DealerEventsTest(unittest.TestCase):
         myfilter = var.dealer._dealer_contract.contract.events.ReceivedOrder.createFilter(fromBlock=0, toBlock='latest')
         eventlist = myfilter.get_all_entries()
         for entry in eventlist:
-            print(entry['args'])
+            pass
