@@ -22,6 +22,7 @@ class Dealer(object):
         self._mmp_constraint_bounds = None
         self._mmp_amount_variables = None
         self._mmp_values = None
+        self._mmp_duals = None
 
     @property
     def account_address(self):
@@ -109,11 +110,12 @@ class Dealer(object):
         solvers.options['show_progress'] = False
         sol = solvers.lp(matrix(self._mmp_target_coefs), matrix(self._mmp_constraint_coefs), matrix(self._mmp_constraint_bounds))
         self._mmp_values = np.array([float('%.2f' % (sol['x'][i])) for i in range(self._mmp_amount_variables)])
+        self._mmp_duals = np.array([float('%.2f' % entry) for entry in sol['z']])
         self._mkt_prices = np.array([float('%.2f' % (sol['z'][i])) for i in range(self._shared_resource_size)])
 
     def set_mmp_attributes(self):
         mmp_values = utils.prepare_for_sending(self._mmp_values)
-        mkt_prices = utils.prepare_for_sending(self._mkt_prices)
+        mkt_prices = utils.prepare_for_sending(self._mmp_duals)
         mmp_target_coefs = utils.prepare_for_sending(self._mmp_target_coefs)
         mmp_constraint_bounds = utils.prepare_for_sending(self._mmp_constraint_bounds)
         self._dealer_contract.contract.functions.setMMPAttributes(mmp_values, mkt_prices, mmp_target_coefs, mmp_constraint_bounds).transact({'from': self._account_address})

@@ -27,3 +27,7 @@ def log_iteration_stats(var, iteration):
 
     for agent in var.agent_pool:
         logging.info('\n{}'.format(agent))
+
+
+def log_verify_strong_duality_failed(agent):
+        logging.info('\n{} did not accept the trades bill!'.format(agent.name))

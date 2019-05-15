@@ -20,3 +20,6 @@ def print_iteration_stats(var, iteration):
 
         for agent in var.agent_pool:
                 c.secho(agent.__str__())
+
+def print_verify_strong_duality_failed(agent):
+        c.secho('\n{} did not accept the trades bill!'.format(agent.name), fg='red', bold=True)
