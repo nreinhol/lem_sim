@@ -1,5 +1,6 @@
 import click as c
 import numpy as np
+import time 
 
 from lem_sim import globalmemory as mem
 from lem_sim import linearoptimization as lp
@@ -29,6 +30,8 @@ def main(connection):
             agent.get_mkt_prices()  # call
             agent.determine_bundle_attributes()
             agent.set_order()  # transact
+        
+        time.sleep(1)
 
         var.dealer.get_orders()  # call
         var.dealer.create_mmp()
