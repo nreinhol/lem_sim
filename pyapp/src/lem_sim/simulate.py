@@ -35,13 +35,18 @@ def main(connection):
         var.dealer.solve_mmp()
         var.dealer.set_trades()  # transact
         var.dealer.delete_order()  # transact
-        var.dealer.calculate_resource_inventory()
+        var.dealer.set_mkt_prices()  # transact
         var.dealer.set_mmp_attributes()  # transact
 
         for agent in var.agent_pool:
-            agent.get_bill()  # call
-            agent.get_trade()  # transact
-            agent.add_trade_to_shared_resources()
+            if(agent.verify_strong_duality()):  # call
+                agent.get_bill()  # call
+                agent.get_trade()  # transact
+                agent.add_trade_to_shared_resources()
+            else:
+                output.verify_strong_duality_failed(agent)
+
+        var.dealer.calculate_resource_inventory()
 
         output.iteration_stats(var, iteration)
         iteration += 1
