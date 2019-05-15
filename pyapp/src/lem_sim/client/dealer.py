@@ -47,9 +47,6 @@ class Dealer(object):
         mkt_prices = utils.prepare_for_sending(self._mkt_prices)
         tx = self._dealer_contract.contract.functions.setMktPrices(mkt_prices).transact({'from': self._account_address})
 
-        while self._provider.eth.getTransactionReceipt(tx) is None:
-            time.sleep(1)
-
     def set_resource_inventory(self):
         self._dealer_contract.contract.functions.setResourceInventory(self._resource_inventory)
 
@@ -100,9 +97,9 @@ class Dealer(object):
             CONSTRAINT_COEFS = np.concatenate((mmp_coefs, var_leq_one_coefs, var_geq_zero_coefs), axis=0)  # create final constraint matrix
             CONSTRAINT_BOUNDS = np.concatenate((mmp_bounds, var_leq_one_bounds, var_geq_zero_bounds))  # create final bounds matrix
 
-            self._mmp_constraint_coefs = matrix(CONSTRAINT_COEFS)
-            self._mmp_constraint_bounds = matrix(CONSTRAINT_BOUNDS)
-            self._mmp_target_coefs = matrix(TARGET_COEFS)
+            self._mmp_constraint_coefs = CONSTRAINT_COEFS
+            self._mmp_constraint_bounds = CONSTRAINT_BOUNDS
+            self._mmp_target_coefs = TARGET_COEFS
 
         except ValueError as error:
             print('Creation of MMP failed!')
@@ -110,9 +107,16 @@ class Dealer(object):
 
     def solve_mmp(self):
         solvers.options['show_progress'] = False
-        sol = solvers.lp(self._mmp_target_coefs, self._mmp_constraint_coefs, self._mmp_constraint_bounds)
+        sol = solvers.lp(matrix(self._mmp_target_coefs), matrix(self._mmp_constraint_coefs), matrix(self._mmp_constraint_bounds))
         self._mmp_values = np.array([float('%.2f' % (sol['x'][i])) for i in range(self._mmp_amount_variables)])
         self._mkt_prices = np.array([float('%.2f' % (sol['z'][i])) for i in range(self._shared_resource_size)])
+
+    def set_mmp_attributes(self):
+        mmp_values = utils.prepare_for_sending(self._mmp_values)
+        mkt_prices = utils.prepare_for_sending(self._mkt_prices)
+        mmp_target_coefs = utils.prepare_for_sending(self._mmp_target_coefs)
+        mmp_constraint_bounds = utils.prepare_for_sending(self._mmp_constraint_bounds)
+        self._dealer_contract.contract.functions.setMMPAttributes(mmp_values, mkt_prices, mmp_target_coefs, mmp_constraint_bounds).transact({'from': self._account_address})
 
     def set_trade_share(self):
         amount_orders = [order.amount_orders for order in self._order_handler.get_all_orders()]
