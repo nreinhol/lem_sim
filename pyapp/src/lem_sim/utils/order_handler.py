@@ -87,6 +87,5 @@ class Orders(object):
 
     def get_trade_information(self):
         trade = utils.prepare_for_sending(self._trade)
-        # bill = utils.prepare_for_sending(self._bill)
 
         return self._account, trade, self._bill

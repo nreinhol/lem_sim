@@ -1,6 +1,5 @@
 import numpy as np
 from cvxopt import matrix, solvers
-import time
 
 from lem_sim import utils
 

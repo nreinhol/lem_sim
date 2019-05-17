@@ -100,7 +100,7 @@ class LinearOptimizationTest(unittest.TestCase):
         sol = solvers.lp(c, A, b)
 
         self.assertIsNotNone(sol)
-    
+
     def test_strong_duality(self):
         '''
         cT * x = yT * b
@@ -108,7 +108,7 @@ class LinearOptimizationTest(unittest.TestCase):
         c = target coefs of mmp
         x = values of mmp
         y = duals of mmp (market prices)
-        b = bounds of mmp (resource_inventory) 
+        b = bounds of mmp (resource_inventory)
         '''
 
         TARGET_COEFS = np.array([-6, -9], dtype=float)
@@ -123,9 +123,9 @@ class LinearOptimizationTest(unittest.TestCase):
 
         mmp_values = np.array([float('%.5f' % entry) for entry in sol['x']]).T
         dual_values = np.array([float('%.5f' % entry) for entry in sol['z']]).T
-        
-        print(np.sum(TARGET_COEFS*mmp_values))
-        print(np.sum(dual_values*CONSTRAINT_BOUNDS))
+
+        print(np.sum(TARGET_COEFS * mmp_values))
+        print(np.sum(dual_values * CONSTRAINT_BOUNDS))
 
 
 if __name__ == '__main__':

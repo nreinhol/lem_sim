@@ -97,7 +97,7 @@ class Agent(object):
 
     def verify_strong_duality(self):
         mmp_values, mmp_duals, mmp_target_coefs, mmp_bounds = self.get_mmp_attributes()
-        primal_bound = (-np.sum(mmp_values * mmp_target_coefs)) 
+        primal_bound = (-np.sum(mmp_values * mmp_target_coefs))
         dual_bound = np.sum(mmp_duals * mmp_bounds)
         primal_bound = math.floor(primal_bound * 10) / 10
         dual_bound = math.floor(dual_bound * 10) / 10
@@ -148,10 +148,10 @@ class Agent(object):
 
 def solve_bundle_determination(optimization_problem, mkt_prices):
         bundle_target_coefs = np.concatenate((optimization_problem.target_coefs, mkt_prices))
-        
+
         bundle_individual_coefs = np.concatenate((optimization_problem.individual_coefs, np.zeros(optimization_problem.individual_coefs.shape)), axis=1)
         bundle_shared_coefs = np.concatenate((optimization_problem.shared_coefs, np.identity(mkt_prices.size, dtype=float) * (-1)), axis=1)
-        
+
         bundle_var_geq_zero_constraint = np.concatenate((np.identity(mkt_prices.size) * (-1), np.zeros(optimization_problem.shared_coefs.shape)), axis=1)
         bundle_var_geq_zero_bound = np.zeros(mkt_prices.size)
 
