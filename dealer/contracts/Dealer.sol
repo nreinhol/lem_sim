@@ -79,7 +79,7 @@ contract Dealer{
     }
 
     function setOrder(int256[] _bundle, int256 _bid) public {
-        
+
         Order memory new_order = Order(
             msg.sender,
             _bundle,
