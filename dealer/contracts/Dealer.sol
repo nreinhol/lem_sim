@@ -74,7 +74,7 @@ contract Dealer{
         emit StoredTrade(_account, _trade, _payment);
     }
 
-    function getTrade() checkPayment() payable public returns (int256[]) {
+    function getTrade() public payable checkPayment() returns (int256[]) {
         return trades[msg.sender];
     }
 
@@ -92,7 +92,7 @@ contract Dealer{
         emit ReceivedOrder(new_order.account, new_order.bundle, new_order.bid, order_count);
 
         // increment order count
-        order_count ++;        
+        order_count ++;
     }
 
     function getOrder(uint32 order_id) public view returns (address, int256[], int256) {
