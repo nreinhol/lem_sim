@@ -20,7 +20,7 @@ def main(connection):
     equal_market_prices = False
     iteration = 1
 
-    output.initial_setup(var)
+    output.initial_setup(var, draw=False)
 
     # main simulation loop
     while(not equal_market_prices):
@@ -39,16 +39,13 @@ def main(connection):
         var.dealer.set_mmp_attributes()  # transact
 
         for agent in var.agent_pool:
-            if(agent.verify_strong_duality()):  # call
-                agent.get_bill()  # call
-                agent.get_trade()  # transact
-                agent.add_trade_to_shared_resources()
-            else:
-                output.verify_strong_duality_failed(agent)
+            agent.verify_strong_duality()  # call
+            agent.get_trade()  # transact
+            agent.add_trade_to_shared_resources()
 
         var.dealer.calculate_resource_inventory()
 
-        output.iteration_stats(var, iteration)
+        output.iteration_stats(var, iteration, draw=False)
         iteration += 1
 
         if(np.array_equal(market_prices, var.dealer.mkt_prices)):

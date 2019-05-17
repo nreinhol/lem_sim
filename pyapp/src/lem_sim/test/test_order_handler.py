@@ -28,19 +28,17 @@ class OrdersTest(unittest.TestCase):
         orders.add_order(bundle_k, bid_k, indice_k)
 
     def test_calculate_trade(self):
-        first_order = ['account_1', [8, 3], 6]
-        second_order = ['account_1', [2, 9], 3]
+        first_order = ['account_1', [8, 3], 600]
+        second_order = ['account_1', [2, 9], 300]
 
         var = mem.Variables('ip')
         dealer = var.dealer
-        dealer._mmp_values = np.array([1, 0])
+        dealer._mmp_values = np.array([1, 1])
         dealer._order_handler = utils.OrderHandler()
         dealer._order_handler.add_order(0, first_order)
         dealer._order_handler.add_order(1, second_order)
         dealer.set_trade_share()
         orders = dealer._order_handler.get_all_orders()
+        orders[0].calculate_prepayment()
 
-        trades = []
-        for order in orders:
-            order.calculate_trade()
-            trades.append(order._trade)
+        self.assertEqual(orders[0]._prepayment, 9)

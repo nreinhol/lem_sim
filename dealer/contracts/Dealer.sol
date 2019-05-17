@@ -4,7 +4,7 @@ pragma solidity ^0.4.25;
 1 wei = 1.000.000.000.000.000.000 ether (10^18)
 */
 
-contract Dealer{ 
+contract Dealer{
     address private _owner;
     int256[] public resource_inventory;
     int256[] public mkt_prices;
@@ -14,29 +14,32 @@ contract Dealer{
     uint32[] public order_indices;
     mapping(uint32 => Order) public orders;
 
+    // attributes for trade handling
+    mapping(address => int256[]) private trades;
+    mapping(address => uint256) public bills;
+    mapping(address => uint256) public prepayments;
+    mapping(address => uint256) public refunds;
+
     // attributes for the mmp
     int256[] public mmp_duals;
     int256[] public mmp_values;
     int256[] public mmp_target_coefs;
     int256[] public mmp_bounds;
 
-    // attributes for trade handling
-    mapping(address => int256[]) private trades;
-    mapping(address => uint256) public bills;
 
     // events
-    event ReceivedOrder(address from, int256[] bundle, int256 bid, uint32 index);
+    event ReceivedOrder(address from, int256[] bundle, uint256 bid, uint32 index);
     event DeletedOrder(uint32 index);
-    event StoredTrade(address receiver, int256[] trade, uint256 payment);
+    event StoredTrade(address receiver, int256[] trade, uint256 prepayment, uint256 bill, uint256 refund);
 
     constructor() public {
         _owner = msg.sender;
         order_count = 1;
     }
 
-    modifier checkPayment() {
+    modifier checkPayment(uint256 _prepayment) {
         require(
-            bills[msg.sender] == msg.value,
+            _prepayment == msg.value,
             "Not enough wei"
             );
         _;
@@ -53,32 +56,29 @@ contract Dealer{
     struct Order {
         address account;
         int256[] bundle;
-        int256 bid;
+        uint256 bid;
     }
 
-    function setMMPAttributes(int256[] _mmp_values, int256[] _mmp_duals, int256[] _mmp_target_coefs, int256[] _mmp_bounds) public onlyByOwner() {
-        mmp_values = _mmp_values;
-        mmp_target_coefs = _mmp_target_coefs;
-        mmp_bounds = _mmp_bounds;
-        mmp_duals = _mmp_duals;
-    }
-
-    function getMMPAttributes() public view returns (int256[], int256[], int256[], int256[]) {
-        return (mmp_values, mmp_duals, mmp_target_coefs, mmp_bounds);
-    }
-
-    function setTrade(address _account, int256[] _trade, uint256 _payment) public onlyByOwner() {
+    function setTrade(address _account, int256[] _trade, uint256 _prepayment, uint256 _bill, uint256 _refund) public onlyByOwner() {
         trades[_account] = _trade;
-        bills[_account] = _payment;
+        bills[_account] = _bill;
+        prepayments[_account] = _prepayment;
+        refunds[_account] = _refund;
 
-        emit StoredTrade(_account, _trade, _payment);
+        emit StoredTrade(_account, _trade, _prepayment, _bill, _refund);
     }
 
-    function getTrade() public payable checkPayment() returns (int256[]) {
-        return trades[msg.sender];
+    function getTrade(bool accept_trade) public returns (int256[]) {
+        if(accept_trade) {
+            msg.sender.transfer(refunds[msg.sender]);
+            return trades[msg.sender];
+        } else {
+            msg.sender.transfer(prepayments[msg.sender]);
+        }
+
     }
 
-    function setOrder(int256[] _bundle, int256 _bid) public {
+    function setOrder(int256[] _bundle, uint256 _bid, uint256 _prepayment) public payable checkPayment(_prepayment) {
 
         Order memory new_order = Order(
             msg.sender,
@@ -95,7 +95,7 @@ contract Dealer{
         order_count ++;
     }
 
-    function getOrder(uint32 order_id) public view returns (address, int256[], int256) {
+    function getOrder(uint32 order_id) public view returns (address, int256[], uint256) {
         return (orders[order_id].account, orders[order_id].bundle, orders[order_id].bid);
     }
 
@@ -132,6 +132,17 @@ contract Dealer{
 
     function getBill() public view returns (uint256) {
         return bills[msg.sender];
+    }
+
+    function setMMPAttributes(int256[] _mmp_values, int256[] _mmp_duals, int256[] _mmp_target_coefs, int256[] _mmp_bounds) public onlyByOwner() {
+        mmp_values = _mmp_values;
+        mmp_target_coefs = _mmp_target_coefs;
+        mmp_bounds = _mmp_bounds;
+        mmp_duals = _mmp_duals;
+    }
+
+    function getMMPAttributes() public view returns (int256[], int256[], int256[], int256[]) {
+        return (mmp_values, mmp_duals, mmp_target_coefs, mmp_bounds);
     }
 
 }

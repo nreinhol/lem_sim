@@ -73,11 +73,55 @@ class Dealer(object):
     def set_trades(self):
         self.set_trade_share()
         self.initiate_trade_calculation()
+        self.initiate_prepayment_calculation()
         self.initiate_bill_calculation()
+        self.initiate_refund_calculation()
+        
         for order in self._order_handler.get_all_orders():
-            account, trade, bill = order.get_trade_information()
+            account, trade, prepayment, bill, refund = order.get_trade_information()
+            prepayment = utils.from_ether_to_wei(prepayment)
             bill = utils.from_ether_to_wei(bill)
-            self._dealer_contract.contract.functions.setTrade(account, trade, bill).transact({'from': self._account_address})
+            refund = utils.from_ether_to_wei(refund)
+
+            print('prepayment', prepayment)
+            print('bill', bill)
+            print('refund', refund)
+            print('_______________')
+            
+            self._dealer_contract.contract.functions.setTrade(account, trade, prepayment, bill, refund).transact({'from': self._account_address})
+
+    def set_trade_share(self):
+            amount_orders = [order.amount_orders for order in self._order_handler.get_all_orders()]
+            trade_share = self._mmp_values
+            for amount, orders in zip(amount_orders, self._order_handler.get_all_orders()):
+                orders.trade_share = trade_share[0:amount]
+                trade_share = trade_share[amount:]
+
+    def initiate_trade_calculation(self):
+        for order in self._order_handler.get_all_orders():
+            order.calculate_trade()
+    
+    def initiate_prepayment_calculation(self):
+        for order in self._order_handler.get_all_orders():
+            order.calculate_prepayment()
+
+    def initiate_bill_calculation(self):
+        for order in self._order_handler.get_all_orders():
+            order.calculate_bill(self._mkt_prices)
+    
+    def initiate_refund_calculation(self):
+        for order in self._order_handler.get_all_orders():
+            order.calculate_refund()
+
+    def get_settled_order_indices(self):
+        settled_orders = []
+
+        for order in self._order_handler.get_all_orders():
+            indice_of_trade_shares_not_zero = (order.trade_share.nonzero()[0].tolist())
+            indice_of_settled_orders = [order.indices[index] for index in indice_of_trade_shares_not_zero]
+            settled_orders += indice_of_settled_orders
+
+        return settled_orders
 
     def create_mmp(self):
         bundles = [order.get_concatenated_bundles() for order in self._order_handler.get_all_orders()]
@@ -118,31 +162,6 @@ class Dealer(object):
         mmp_target_coefs = utils.prepare_for_sending(self._mmp_target_coefs)
         mmp_constraint_bounds = utils.prepare_for_sending(self._mmp_constraint_bounds)
         self._dealer_contract.contract.functions.setMMPAttributes(mmp_values, mkt_prices, mmp_target_coefs, mmp_constraint_bounds).transact({'from': self._account_address})
-
-    def set_trade_share(self):
-        amount_orders = [order.amount_orders for order in self._order_handler.get_all_orders()]
-        trade_share = self._mmp_values
-        for amount, orders in zip(amount_orders, self._order_handler.get_all_orders()):
-            orders.trade_share = trade_share[0:amount]
-            trade_share = trade_share[amount:]
-
-    def initiate_trade_calculation(self):
-        for order in self._order_handler.get_all_orders():
-            order.calculate_trade()
-
-    def initiate_bill_calculation(self):
-        for order in self._order_handler.get_all_orders():
-            order.calculate_bill(self._mkt_prices)
-
-    def get_settled_order_indices(self):
-        settled_orders = []
-
-        for order in self._order_handler.get_all_orders():
-            indice_of_trade_shares_not_zero = (order.trade_share.nonzero()[0].tolist())
-            indice_of_settled_orders = [order.indices[index] for index in indice_of_trade_shares_not_zero]
-            settled_orders += indice_of_settled_orders
-
-        return settled_orders
 
     def calculate_resource_inventory(self):
         self._trade = sum([order.trade for order in self._order_handler.get_all_orders()])

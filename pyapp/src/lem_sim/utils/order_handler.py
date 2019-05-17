@@ -38,7 +38,9 @@ class Orders(object):
         self._indices = []
         self._trade_share = []
         self._trade = None
+        self._prepayment = None
         self._bill = None
+        self._refund = None
 
     @property
     def account(self):
@@ -85,7 +87,13 @@ class Orders(object):
     def calculate_bill(self, mkt_prices):
         self._bill = np.sum(np.multiply(self._trade, mkt_prices))
 
+    def calculate_prepayment(self):
+        settled_trades = [1 for share in self._trade_share if share > 0]
+        self._prepayment = sum([bid * settled_trade for bid, settled_trade in zip(self._bids, settled_trades)])
+
+    def calculate_refund(self):
+        self._refund = self._prepayment - self._bill
+
     def get_trade_information(self):
         trade = utils.prepare_for_sending(self._trade)
-
-        return self._account, trade, self._bill
+        return self._account, trade, self._prepayment, self._bill, self._refund

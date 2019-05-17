@@ -21,6 +21,7 @@ class Agent(object):
         self._trade = None
         self._objective = None
         self._wealth = None
+        self._accept_trade = None
 
     @property
     def name(self):
@@ -103,27 +104,20 @@ class Agent(object):
         dual_bound = math.floor(dual_bound * 10) / 10
 
         if primal_bound == dual_bound:
-            return True
+            self._accept_trade = True
         else:
-            return False
-
-    def get_bill(self):
-        bill = self._dealer_contract.contract.functions.getBill().call({'from': self._account_address})
-        self._bill = utils.from_wei_to_ether(bill)
+            self._accept_trade = False
 
     def get_trade(self):
-        bill = utils.from_ether_to_wei(self._bill)
-        trade = self._dealer_contract.contract.functions.getTrade().call({'from': self._account_address, 'value': bill})
+        trade = self._dealer_contract.contract.functions.getTrade(self._accept_trade).call({'from': self._account_address})
         self._trade = utils.prepare_for_storing(trade)
-        self._dealer_contract.contract.functions.getTrade().transact({'from': self._account_address, 'value': bill})
+        self._dealer_contract.contract.functions.getTrade(self._accept_trade).transact({'from': self._account_address})
 
     def set_order(self):
         bundle_set = utils.prepare_for_sending(self._bundle_set)
         bid = utils.prepare_for_sending(self._bid)
-        tx = self._dealer_contract.contract.functions.setOrder(bundle_set, bid).transact({'from': self._account_address})
-
-        while self._provider.eth.getTransactionReceipt(tx) is None:
-            time.sleep(1)
+        prepayment = utils.from_ether_to_wei(self._bid)
+        self._dealer_contract.contract.functions.setOrder(bundle_set, bid, prepayment).transact({'from': self._account_address, 'value': prepayment})
 
     def add_trade_to_shared_resources(self):
         self._optimization_problem.shared_resources = np.add(self._optimization_problem.shared_resources, self._trade)
