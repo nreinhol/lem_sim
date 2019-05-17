@@ -148,11 +148,15 @@ class Agent(object):
 
 def solve_bundle_determination(optimization_problem, mkt_prices):
         bundle_target_coefs = np.concatenate((optimization_problem.target_coefs, mkt_prices))
+        
         bundle_individual_coefs = np.concatenate((optimization_problem.individual_coefs, np.zeros(optimization_problem.individual_coefs.shape)), axis=1)
         bundle_shared_coefs = np.concatenate((optimization_problem.shared_coefs, np.identity(mkt_prices.size, dtype=float) * (-1)), axis=1)
+        
+        bundle_var_geq_zero_constraint = np.concatenate((np.identity(mkt_prices.size) * (-1), np.zeros(optimization_problem.shared_coefs.shape)), axis=1)
+        bundle_var_geq_zero_bound = np.zeros(mkt_prices.size)
 
-        bundle_coefs = np.concatenate((bundle_individual_coefs, bundle_shared_coefs))
-        bundle_resources = np.concatenate((optimization_problem.individual_resources, optimization_problem.shared_resources))
+        bundle_coefs = np.concatenate((bundle_individual_coefs, bundle_shared_coefs, bundle_var_geq_zero_constraint))
+        bundle_resources = np.concatenate((optimization_problem.individual_resources, optimization_problem.shared_resources, bundle_var_geq_zero_bound))
 
         result = linprog(bundle_target_coefs, bundle_coefs, bundle_resources)
         result.x = result.x[- mkt_prices.size:]  # remove not bundle coefficients
