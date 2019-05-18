@@ -5,6 +5,7 @@ pragma solidity ^0.4.25;
 */
 
 contract Dealer{
+    // general properties
     address private _owner;
     int256[] public resource_inventory;
     int256[] public mkt_prices;
@@ -15,6 +16,7 @@ contract Dealer{
     mapping(uint32 => Order) public orders;
 
     // attributes for trade handling
+    address[] trades_LUT;
     mapping(address => int256[]) private trades;
     mapping(address => uint256) public bills;
     mapping(address => uint256) public prepayments;
@@ -25,7 +27,6 @@ contract Dealer{
     int256[] public mmp_values;
     int256[] public mmp_target_coefs;
     int256[] public mmp_bounds;
-
 
     // events
     event ReceivedOrder(address from, int256[] bundle, uint256 bid, uint256 prepayment, uint32 index);
@@ -38,6 +39,10 @@ contract Dealer{
         _owner = msg.sender;
         order_count = 1;
     }
+
+    /*
+    modifier
+    */
 
     modifier checkPrepayment(uint256 _prepayment) {
         require(
@@ -61,7 +66,12 @@ contract Dealer{
         uint256 bid;
     }
 
+    /*
+    functions for trade handling
+    */ 
+
     function setTrade(address _account, int256[] _trade, uint256 _prepayment, uint256 _bill, uint256 _refund) public onlyByOwner() {
+        trades_LUT.push(_account);
         trades[_account] = _trade;
         bills[_account] = _bill;
         prepayments[_account] = _prepayment;
@@ -77,10 +87,15 @@ contract Dealer{
             return trades[msg.sender];
         } else {
             msg.sender.transfer(prepayments[msg.sender]);
+            delete trades[msg.sender];
             emit RejectedTrade(msg.sender, trades[msg.sender], prepayments[msg.sender]);
         }
         
     }
+
+    /*
+    functions for order handling
+    */
 
     function setOrder(int256[] _bundle, uint256 _bid, uint256 _prepayment) public payable checkPrepayment(_prepayment) {
 
@@ -110,6 +125,10 @@ contract Dealer{
         emit DeletedOrder(index);
     }
 
+    /*
+    getter and setter for mkt prices
+    */ 
+
     function setMktPrices(int256[] _mkt_prices) public onlyByOwner() {
         mkt_prices = _mkt_prices;
     }
@@ -118,9 +137,9 @@ contract Dealer{
         return mkt_prices;
     }
 
-    function getOrderIndices() public view returns (uint32[]) {
-        return order_indices;
-    }
+    /*
+    functions for managing resource inventory
+    */
 
     function setResourceInventory (int256[] _resource_inventory) public onlyByOwner() {
         resource_inventory = _resource_inventory;
@@ -130,13 +149,15 @@ contract Dealer{
         return resource_inventory;
     }
 
-    function getOwner() public view returns (address) {
-        return _owner;
+    function calculateResourceInventory() public view {
+        for(uint i=0; i<trades_LUT.length; i++) {
+
+        }
     }
 
-    function getBill() public view returns (uint256) {
-        return bills[msg.sender];
-    }
+    /*
+    getter and setter for mmp attributes
+    */
 
     function setMMPAttributes(int256[] _mmp_values, int256[] _mmp_duals, int256[] _mmp_target_coefs, int256[] _mmp_bounds) public onlyByOwner() {
         mmp_values = _mmp_values;
@@ -147,6 +168,22 @@ contract Dealer{
 
     function getMMPAttributes() public view returns (int256[], int256[], int256[], int256[]) {
         return (mmp_values, mmp_duals, mmp_target_coefs, mmp_bounds);
+    }
+
+    /*
+    miscellaneous getter and setter
+    */
+
+    function getOwner() public view returns (address) {
+        return _owner;
+    }
+
+    function getBill() public view returns (uint256) {
+        return bills[msg.sender];
+    }
+
+    function getOrderIndices() public view returns (uint32[]) {
+        return order_indices;
     }
 
 }
