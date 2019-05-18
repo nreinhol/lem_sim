@@ -7,10 +7,10 @@ from lem_sim import utils
 
 class Agent(object):
 
-    def __init__(self, agent_number, account_address, provider, dealer_contract):
+    def __init__(self, agent_number, account_address, web3, dealer_contract):
         self._name = 'AGENT{}'.format(agent_number)
         self._account_address = account_address
-        self._provider = provider
+        self._web3 = web3
         self._dealer_contract = dealer_contract
         self._optimization_problem = None
         self._bundle_set = None
@@ -50,7 +50,7 @@ class Agent(object):
 
     @property
     def balance(self):
-        balance = self._provider.eth.getBalance(self._account_address)
+        balance = self._web3.eth.getBalance(self._account_address)
         return float(utils.from_wei_to_ether(balance))
 
     @property
