@@ -43,6 +43,9 @@ endif
 simulate:
 	@$(PYTHON_INTERPRETER) src/$(PROJECT_NAME)/simulate.py --connection=ip
 
+analyse:
+	@$(PYTHON_INTERPRETER) src/$(PROJECT_NAME)/analyse/run.py --connection=ip
+
 test: clean
 	@echo "\n----------------------- Run Tests ------------------------------------ \n"
 	@$(PYTHON_INTERPRETER) -m unittest -v src/$(PROJECT_NAME)/test/*
