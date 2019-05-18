@@ -28,7 +28,7 @@ contract Dealer{
 
 
     // events
-    event ReceivedOrder(address from, int256[] bundle, uint256 bid, uint32 index);
+    event ReceivedOrder(address from, int256[] bundle, uint256 bid, uint256 prepayment, uint32 index);
     event DeletedOrder(uint32 index);
     event StoredTrade(address receiver, int256[] trade, uint256 prepayment, uint256 bill, uint256 refund);
 
@@ -89,7 +89,7 @@ contract Dealer{
         orders[order_count] = new_order;
         order_indices.push(order_count);
 
-        emit ReceivedOrder(new_order.account, new_order.bundle, new_order.bid, order_count);
+        emit ReceivedOrder(new_order.account, new_order.bundle, new_order.bid, _prepayment, order_count);
 
         // increment order count
         order_count ++;

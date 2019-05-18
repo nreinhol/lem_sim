@@ -1,6 +1,5 @@
 import numpy as np
 from scipy.optimize import linprog
-import time
 import math
 
 from lem_sim import utils
@@ -22,6 +21,8 @@ class Agent(object):
         self._objective = None
         self._wealth = None
         self._accept_trade = None
+
+    ''' getter and setter of class attributes '''
 
     @property
     def name(self):
@@ -78,14 +79,29 @@ class Agent(object):
         self._objective = self._optimization_problem.solve().fun  # set initial objective
         self._wealth = self.balance + abs(self._objective)  # set initial wealth
 
-    def determine_bundle_attributes(self):
-        result = solve_bundle_determination(self._optimization_problem, self._mkt_prices)
-        self._bundle_set = result.x
-        self._bid = self._objective - result.fun
+    ''' functions for contract communication '''
+
+    def get_trade(self):
+        trade = self._dealer_contract.contract.functions.getTrade(self._accept_trade).call({'from': self._account_address})
+        self._trade = utils.prepare_for_storing(trade)
+        self._dealer_contract.contract.functions.getTrade(self._accept_trade).transact({'from': self._account_address})
+
+    def set_order(self):
+        bundle_set = utils.prepare_for_sending(self._bundle_set)
+        bid = utils.prepare_for_sending(self._bid)
+        prepayment = utils.from_ether_to_wei(self._bid)
+        self._dealer_contract.contract.functions.setOrder(bundle_set, bid, prepayment).transact({'from': self._account_address, 'value': prepayment})
 
     def get_mkt_prices(self):
         mkt_prices = self._dealer_contract.contract.functions.getMktPrices().call()
         self._mkt_prices = utils.prepare_for_storing(mkt_prices)
+
+    ''' functions to determine inner class attributes '''
+
+    def determine_bundle_attributes(self):
+        result = solve_bundle_determination(self._optimization_problem, self._mkt_prices)
+        self._bundle_set = result.x
+        self._bid = self._objective - result.fun
 
     def get_mmp_attributes(self):
         mmp_attributes = self._dealer_contract.contract.functions.getMMPAttributes().call()
@@ -107,17 +123,6 @@ class Agent(object):
             self._accept_trade = True
         else:
             self._accept_trade = False
-
-    def get_trade(self):
-        trade = self._dealer_contract.contract.functions.getTrade(self._accept_trade).call({'from': self._account_address})
-        self._trade = utils.prepare_for_storing(trade)
-        self._dealer_contract.contract.functions.getTrade(self._accept_trade).transact({'from': self._account_address})
-
-    def set_order(self):
-        bundle_set = utils.prepare_for_sending(self._bundle_set)
-        bid = utils.prepare_for_sending(self._bid)
-        prepayment = utils.from_ether_to_wei(self._bid)
-        self._dealer_contract.contract.functions.setOrder(bundle_set, bid, prepayment).transact({'from': self._account_address, 'value': prepayment})
 
     def add_trade_to_shared_resources(self):
         self._optimization_problem.shared_resources = np.add(self._optimization_problem.shared_resources, self._trade)

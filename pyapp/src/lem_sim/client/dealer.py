@@ -23,6 +23,8 @@ class Dealer(object):
         self._mmp_values = None
         self._mmp_duals = None
 
+    ''' getter and setter of class attributes '''
+
     @property
     def account_address(self):
         return self._account_address
@@ -43,9 +45,11 @@ class Dealer(object):
     def resource_inventory(self, value):
         self._resource_inventory = value
 
+    ''' functions for contract communication '''
+
     def set_mkt_prices(self):
         mkt_prices = utils.prepare_for_sending(self._mkt_prices)
-        tx = self._dealer_contract.contract.functions.setMktPrices(mkt_prices).transact({'from': self._account_address})
+        self._dealer_contract.contract.functions.setMktPrices(mkt_prices).transact({'from': self._account_address})
 
     def set_resource_inventory(self):
         self._dealer_contract.contract.functions.setResourceInventory(self._resource_inventory)
@@ -76,18 +80,20 @@ class Dealer(object):
         self.initiate_prepayment_calculation()
         self.initiate_bill_calculation()
         self.initiate_refund_calculation()
-        
+
         for order in self._order_handler.get_all_orders():
             account, trade, prepayment, bill, refund = order.get_trade_information()
             prepayment = utils.from_ether_to_wei(prepayment)
             bill = utils.from_ether_to_wei(bill)
             refund = utils.from_ether_to_wei(refund)
 
+            print('account', account)
+            print('trade', trade)
             print('prepayment', prepayment)
             print('bill', bill)
             print('refund', refund)
             print('_______________')
-            
+
             self._dealer_contract.contract.functions.setTrade(account, trade, prepayment, bill, refund).transact({'from': self._account_address})
 
     def set_trade_share(self):
@@ -100,7 +106,7 @@ class Dealer(object):
     def initiate_trade_calculation(self):
         for order in self._order_handler.get_all_orders():
             order.calculate_trade()
-    
+
     def initiate_prepayment_calculation(self):
         for order in self._order_handler.get_all_orders():
             order.calculate_prepayment()
@@ -108,7 +114,7 @@ class Dealer(object):
     def initiate_bill_calculation(self):
         for order in self._order_handler.get_all_orders():
             order.calculate_bill(self._mkt_prices)
-    
+
     def initiate_refund_calculation(self):
         for order in self._order_handler.get_all_orders():
             order.calculate_refund()
@@ -122,6 +128,15 @@ class Dealer(object):
             settled_orders += indice_of_settled_orders
 
         return settled_orders
+
+    def set_mmp_attributes(self):
+        mmp_values = utils.prepare_for_sending(self._mmp_values)
+        mkt_prices = utils.prepare_for_sending(self._mmp_duals)
+        mmp_target_coefs = utils.prepare_for_sending(self._mmp_target_coefs)
+        mmp_constraint_bounds = utils.prepare_for_sending(self._mmp_constraint_bounds)
+        self._dealer_contract.contract.functions.setMMPAttributes(mmp_values, mkt_prices, mmp_target_coefs, mmp_constraint_bounds).transact({'from': self._account_address})
+
+    ''' functions for handling and solving mmp '''
 
     def create_mmp(self):
         bundles = [order.get_concatenated_bundles() for order in self._order_handler.get_all_orders()]
@@ -155,13 +170,6 @@ class Dealer(object):
         self._mmp_values = np.array([float('%.2f' % (sol['x'][i])) for i in range(self._mmp_amount_variables)])
         self._mmp_duals = np.array([float('%.2f' % entry) for entry in sol['z']])
         self._mkt_prices = np.array([float('%.2f' % (sol['z'][i])) for i in range(self._shared_resource_size)])
-
-    def set_mmp_attributes(self):
-        mmp_values = utils.prepare_for_sending(self._mmp_values)
-        mkt_prices = utils.prepare_for_sending(self._mmp_duals)
-        mmp_target_coefs = utils.prepare_for_sending(self._mmp_target_coefs)
-        mmp_constraint_bounds = utils.prepare_for_sending(self._mmp_constraint_bounds)
-        self._dealer_contract.contract.functions.setMMPAttributes(mmp_values, mkt_prices, mmp_target_coefs, mmp_constraint_bounds).transact({'from': self._account_address})
 
     def calculate_resource_inventory(self):
         self._trade = sum([order.trade for order in self._order_handler.get_all_orders()])
