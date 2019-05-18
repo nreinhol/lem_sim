@@ -6,9 +6,9 @@ from lem_sim import utils
 
 class Dealer(object):
 
-    def __init__(self, account_address, provider, dealer_contract, shared_resource_size):
+    def __init__(self, account_address, web3, dealer_contract, shared_resource_size):
         self._account_address = account_address
-        self._provider = provider
+        self._web3 = web3
         self._dealer_contract = dealer_contract
         self._resource_inventory = None
         self._trade = None
