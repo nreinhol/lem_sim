@@ -15,9 +15,9 @@ SHARED_COEFS = np.array([[1, 3, 2, 1], [1, 1, 1, 1]])  # shared coefficients (C)
 
 class Variables(object):
 
-    def __init__(self, connection):
+    def __init__(self):
         self._central_problem = lp.OptimizationProblem(TARGET_COEFS, INDIVIDUAL_RESOURCES, INDIVIDUAL_COEFS, SHARED_RESOURCES, SHARED_COEFS)
-        self._web3 = communication.get_network_connection(connection)
+        self._web3 = communication.get_network_connection()
         self._dealer_contract = contract.ContractHandler(self._web3, 'Dealer.json')
         self._accounts = self._web3.eth.accounts
         self._dealer = client.Dealer(self._accounts.pop(0), self._web3, self._dealer_contract, self._central_problem.shared_resources.size)
