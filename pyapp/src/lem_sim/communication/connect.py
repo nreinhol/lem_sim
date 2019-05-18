@@ -3,7 +3,7 @@ import click
 from web3 import Web3, HTTPProvider
 
 
-def get_network_connection(connection):
+def get_network_connection(connection='ip'):
 
     if(connection == 'docker'):
         network_address = 'HTTP://ganache:8545'
