@@ -31,13 +31,15 @@ contract Dealer{
     event ReceivedOrder(address from, int256[] bundle, uint256 bid, uint256 prepayment, uint32 index);
     event DeletedOrder(uint32 index);
     event StoredTrade(address receiver, int256[] trade, uint256 prepayment, uint256 bill, uint256 refund);
+    event FetchedTrade(address receiver, int256[] trade, uint256 refund);
+    event RejectedTrade(address receiver, int256[] trade, uint256 refund);
 
     constructor() public {
         _owner = msg.sender;
         order_count = 1;
     }
 
-    modifier checkPayment(uint256 _prepayment) {
+    modifier checkPrepayment(uint256 _prepayment) {
         require(
             _prepayment == msg.value,
             "Not enough wei"
@@ -71,14 +73,17 @@ contract Dealer{
     function getTrade(bool accept_trade) public returns (int256[]) {
         if(accept_trade) {
             msg.sender.transfer(refunds[msg.sender]);
+            emit FetchedTrade(msg.sender, trades[msg.sender], refunds[msg.sender]);
             return trades[msg.sender];
         } else {
             msg.sender.transfer(prepayments[msg.sender]);
+            emit RejectedTrade(msg.sender, trades[msg.sender], prepayments[msg.sender]);
         }
 
+        
     }
 
-    function setOrder(int256[] _bundle, uint256 _bid, uint256 _prepayment) public payable checkPayment(_prepayment) {
+    function setOrder(int256[] _bundle, uint256 _bid, uint256 _prepayment) public payable checkPrepayment(_prepayment) {
 
         Order memory new_order = Order(
             msg.sender,
