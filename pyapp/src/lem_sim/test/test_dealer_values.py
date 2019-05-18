@@ -49,7 +49,7 @@ class DealerValuesTest(unittest.TestCase):
         third_order = ['account_2', [1, 4], 7]
         fourth_order = ['account_1', [5, 6], 4]
 
-        var = mem.Variables('ip')
+        var = mem.Variables()
         dealer = var.dealer
         dealer._mmp_values = np.array([1, 0, 1, 1])
         dealer._order_handler = utils.OrderHandler()

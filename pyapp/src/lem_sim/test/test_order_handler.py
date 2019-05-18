@@ -31,7 +31,7 @@ class OrdersTest(unittest.TestCase):
         first_order = ['account_1', [8, 3], 600]
         second_order = ['account_1', [2, 9], 300]
 
-        var = mem.Variables('ip')
+        var = mem.Variables()
         dealer = var.dealer
         dealer._mmp_values = np.array([1, 1])
         dealer._order_handler = utils.OrderHandler()

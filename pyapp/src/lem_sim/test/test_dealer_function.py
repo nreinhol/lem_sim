@@ -7,12 +7,12 @@ from lem_sim import globalmemory as mem
 class DealerFunctionsTest(unittest.TestCase):
 
     def test_owner(self):
-        var = mem.Variables('ip')
+        var = mem.Variables()
         owner = var.dealer_contract.contract.functions.getOwner().call()
         self.assertEqual(owner, var.dealer.account_address)
 
     def test_mkt_prices(self):
-        var = mem.Variables('ip')
+        var = mem.Variables()
         agent = var.agent_pool[0]
         dealer = var.dealer
 

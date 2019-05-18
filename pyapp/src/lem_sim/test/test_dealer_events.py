@@ -7,7 +7,7 @@ class DealerEventsTest(unittest.TestCase):
 
     def test_received_order(self):
 
-        var = mem.Variables('ip')
+        var = mem.Variables()
 
         myfilter = var.dealer._dealer_contract.contract.events.ReceivedOrder.createFilter(fromBlock=0, toBlock='latest')
         eventlist = myfilter.get_all_entries()
