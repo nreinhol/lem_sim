@@ -125,9 +125,11 @@ class Agent(object):
             self._accept_trade = False
 
     def add_trade_to_shared_resources(self):
-        self._optimization_problem.shared_resources = np.add(self._optimization_problem.shared_resources, self._trade)
-        self._objective = self._optimization_problem.solve().fun  # calculate new objective after getting new shared resources
-        self._wealth = self.balance + abs(self._objective)  # calculate new wealth after new objective calculation
+        # only add trade to shared resources and recalculate objective and bill if trade accepted
+        if(self._accept_trade):
+            self._optimization_problem.shared_resources = np.add(self._optimization_problem.shared_resources, self._trade)
+            self._objective = self._optimization_problem.solve().fun  # calculate new objective after getting new shared resources
+            self._wealth = self.balance + abs(self._objective)  # calculate new wealth after new objective calculation
 
     def __str__(self):
         class_str = '\n{}\naccount: {}\nbalance: {} ether\nobjective: {}\nwealth: {}\norder: {}\nbid: {} ether\ntrade: {}\nbill: {} ether\nallocation: {}'.format(
