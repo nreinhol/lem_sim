@@ -41,10 +41,10 @@ endif
 #################################################################################
 
 simulate:
-	@$(PYTHON_INTERPRETER) src/$(PROJECT_NAME)/simulate.py --connection=ip
+	@$(PYTHON_INTERPRETER) src/$(PROJECT_NAME)/simulate.py
 
-analyse:
-	@$(PYTHON_INTERPRETER) src/$(PROJECT_NAME)/analyse/run.py --connection=ip
+events:
+	@$(PYTHON_INTERPRETER) src/$(PROJECT_NAME)/analyse/run.py --option=events
 
 test: clean
 	@echo "\n----------------------- Run Tests ------------------------------------ \n"
