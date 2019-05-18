@@ -79,7 +79,6 @@ contract Dealer{
             msg.sender.transfer(prepayments[msg.sender]);
             emit RejectedTrade(msg.sender, trades[msg.sender], prepayments[msg.sender]);
         }
-
         
     }
 
