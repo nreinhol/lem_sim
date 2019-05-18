@@ -1,4 +1,3 @@
-import click as c
 import numpy as np
 
 from lem_sim import globalmemory as mem
