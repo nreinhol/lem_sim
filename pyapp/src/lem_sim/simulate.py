@@ -6,12 +6,10 @@ from lem_sim import linearoptimization as lp
 from lem_sim import output
 
 
-@c.command()
-@c.option('--connection', type=c.Choice(['docker', 'ip']), default='docker')
-def main(connection):
+def main():
 
     # initial setup of simulation
-    var = mem.Variables(connection)
+    var = mem.Variables()
     lp.decompose(var)
 
     var.dealer.set_mkt_prices()
