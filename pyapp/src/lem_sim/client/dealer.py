@@ -58,7 +58,7 @@ class Dealer(object):
     def get_resource_inventory(self):
         resource_inventory = self._dealer_contract.contract.functions.getResourceInventory().call()
         return utils.prepare_for_storing(resource_inventory)
-    
+
     def recalculate_resource_inventory(self):
         self.calculate_own_trade()  # calculate dealers own trade out of all accepted trades
         resource_inventory = self.get_resource_inventory()  # get resource inventory which is stored in contract
@@ -81,14 +81,12 @@ class Dealer(object):
         settled_orders = self.get_settled_order_indices()
         for order_id in settled_orders:
             self._dealer_contract.contract.functions.deleteOrder(order_id).transact({'from': self._account_address, 'gas': 300000})
-    
+
     def calculate_own_trade(self):
         trades_accounts = self._dealer_contract.contract.functions.getTradesAccounts().call()  # get lookup table of all accounts which have a trade
-        print('\n', trades_accounts)
         trades = [self._dealer_contract.contract.functions.getTrade(account).call() for account in trades_accounts]
         trades = [utils.prepare_for_storing(trade) for trade in trades if trade]
         trades = [np.array(trade) for trade in trades]
-        print('trades', trades)
         self._trade = sum(trades)
 
     def set_trades(self):

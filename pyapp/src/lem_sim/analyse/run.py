@@ -30,5 +30,6 @@ def run(option):
         for event in rejected_trade_events:
                 print(event['args'], event['blockNumber'])
 
+
 if __name__ == '__main__':
     run()

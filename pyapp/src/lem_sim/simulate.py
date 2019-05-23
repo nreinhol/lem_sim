@@ -10,12 +10,12 @@ def main():
     # general setup of simulation
     var = mem.Variables()
     lp.decompose(var)
-    
+
     # set initial inventory and market prices
     var.dealer.set_resource_inventory()
     var.dealer.set_mkt_prices()
-    
-    # set initial simulation parameter 
+
+    # set initial simulation parameter
     market_prices = var.dealer.mkt_prices
     equal_market_prices = False
     iteration = 1
