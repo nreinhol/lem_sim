@@ -81,10 +81,10 @@ class Agent(object):
 
     ''' functions for contract communication '''
 
-    def get_trade(self):
-        trade = self._dealer_contract.contract.functions.getTrade(self._accept_trade).call({'from': self._account_address})
+    def accept_trade(self):
+        trade = self._dealer_contract.contract.functions.acceptTrade(self._accept_trade).call({'from': self._account_address})
         self._trade = utils.prepare_for_storing(trade)
-        self._dealer_contract.contract.functions.getTrade(self._accept_trade).transact({'from': self._account_address})
+        self._dealer_contract.contract.functions.acceptTrade(self._accept_trade).transact({'from': self._account_address})
 
     def set_order(self):
         bundle_set = utils.prepare_for_sending(self._bundle_set)
@@ -132,7 +132,7 @@ class Agent(object):
             self._wealth = self.balance + abs(self._objective)  # calculate new wealth after new objective calculation
 
     def __str__(self):
-        class_str = '\n{}\naccount: {}\nbalance: {} ether\nobjective: {}\nwealth: {}\norder: {}\nbid: {} ether\ntrade: {}\nbill: {} ether\nallocation: {}'.format(
+        class_str = '\n{}\naccount: {}\nbalance: {} ether\nobjective: {}\nwealth: {}\norder: {}\nbid: {} ether\ntrade: {}\ntrade accepted: {} ether\nallocation: {}'.format(
             self._name,
             self._account_address,
             self.balance,
@@ -141,9 +141,10 @@ class Agent(object):
             self._bundle_set,
             self._bid,
             self._trade,
-            self._bill,
+            self._accept_trade,
             self.optimization_problem.shared_resources
         )
+
         return class_str
 
 
