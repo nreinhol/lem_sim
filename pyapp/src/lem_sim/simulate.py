@@ -7,17 +7,20 @@ from lem_sim import output
 
 def main():
 
-    # initial setup of simulation
+    # general setup of simulation
     var = mem.Variables()
     lp.decompose(var)
-
+    
+    # set initial inventory and market prices
+    var.dealer.set_resource_inventory()
     var.dealer.set_mkt_prices()
+    
+    # set initial simulation parameter 
     market_prices = var.dealer.mkt_prices
-
     equal_market_prices = False
     iteration = 1
 
-    output.initial_setup(var, draw=False)
+    output.initial_setup(var, draw=True)
 
     # main simulation loop
     while(not equal_market_prices):
@@ -37,12 +40,12 @@ def main():
 
         for agent in var.agent_pool:
             agent.verify_strong_duality()  # call
-            agent.get_trade()  # transact
+            agent.accept_trade()  # transact
             agent.add_trade_to_shared_resources()
 
-        var.dealer.calculate_resource_inventory()
+        var.dealer.recalculate_resource_inventory()
 
-        output.iteration_stats(var, iteration, draw=False)
+        output.iteration_stats(var, iteration, draw=True)
         iteration += 1
 
         if(np.array_equal(market_prices, var.dealer.mkt_prices)):

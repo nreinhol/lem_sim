@@ -52,10 +52,18 @@ class Dealer(object):
         self._dealer_contract.contract.functions.setMktPrices(mkt_prices).transact({'from': self._account_address})
 
     def set_resource_inventory(self):
-        self._dealer_contract.contract.functions.setResourceInventory(self._resource_inventory)
+        resource_inventory = utils.prepare_for_sending(self._resource_inventory)
+        self._dealer_contract.contract.functions.setResourceInventory(resource_inventory).transact({'from': self._account_address})
 
     def get_resource_inventory(self):
-        return self._dealer_contract.contract.functions.getResourceInventory().call()
+        resource_inventory = self._dealer_contract.contract.functions.getResourceInventory().call()
+        return utils.prepare_for_storing(resource_inventory)
+    
+    def recalculate_resource_inventory(self):
+        self.calculate_own_trade()  # calculate dealers own trade out of all accepted trades
+        resource_inventory = self.get_resource_inventory()  # get resource inventory which is stored in contract
+        self._resource_inventory = utils.truncate_values_of_array(resource_inventory - self._trade)  # calculate new inventory
+        self.set_resource_inventory()  # store new inventory in contract
 
     def get_order_indices(self):
         return list(filter(None, self._dealer_contract.contract.functions.getOrderIndices().call()))
@@ -73,6 +81,15 @@ class Dealer(object):
         settled_orders = self.get_settled_order_indices()
         for order_id in settled_orders:
             self._dealer_contract.contract.functions.deleteOrder(order_id).transact({'from': self._account_address, 'gas': 300000})
+    
+    def calculate_own_trade(self):
+        trades_accounts = self._dealer_contract.contract.functions.getTradesAccounts().call()  # get lookup table of all accounts which have a trade
+        print('\n', trades_accounts)
+        trades = [self._dealer_contract.contract.functions.getTrade(account).call() for account in trades_accounts]
+        trades = [utils.prepare_for_storing(trade) for trade in trades if trade]
+        trades = [np.array(trade) for trade in trades]
+        print('trades', trades)
+        self._trade = sum(trades)
 
     def set_trades(self):
         self.set_trade_share()
@@ -86,13 +103,6 @@ class Dealer(object):
             prepayment = utils.from_ether_to_wei(prepayment)
             bill = utils.from_ether_to_wei(bill)
             refund = utils.from_ether_to_wei(refund)
-
-            print('account', account)
-            print('trade', trade)
-            print('prepayment', prepayment)
-            print('bill', bill)
-            print('refund', refund)
-            print('_______________')
 
             self._dealer_contract.contract.functions.setTrade(account, trade, prepayment, bill, refund).transact({'from': self._account_address})
 
@@ -170,10 +180,6 @@ class Dealer(object):
         self._mmp_values = np.array([float('%.2f' % (sol['x'][i])) for i in range(self._mmp_amount_variables)])
         self._mmp_duals = np.array([float('%.2f' % entry) for entry in sol['z']])
         self._mkt_prices = np.array([float('%.2f' % (sol['z'][i])) for i in range(self._shared_resource_size)])
-
-    def calculate_resource_inventory(self):
-        self._trade = sum([order.trade for order in self._order_handler.get_all_orders()])
-        self._resource_inventory = utils.truncate_values_of_array(self._resource_inventory - self._trade)
 
     def __str__(self):
         class_str = '\nDEALER\naccount: {}\ndealer inventory: {}\ndealer trade: {}\nmarket price: {}'.format(
