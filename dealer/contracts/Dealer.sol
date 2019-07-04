@@ -17,7 +17,7 @@ contract Dealer{
 
     // attributes for trade handling
 
-    // mapping from address to pisition in trades_accounts array
+    // mapping from address to position in trades_accounts array
     // 0 means the address in not in the array
     mapping (address => uint256) account_index; 
     address[] public trades_accounts;
