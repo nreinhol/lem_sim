@@ -43,7 +43,7 @@ def main():
             agent.accept_trade()  # transact
             agent.add_trade_to_shared_resources()
 
-        var.dealer.recalculate_resource_inventory()
+        var.dealer.recalculate_resource_inventory() # transact
 
         output.iteration_stats(var, iteration, draw=True)
         iteration += 1

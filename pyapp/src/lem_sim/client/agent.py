@@ -132,7 +132,7 @@ class Agent(object):
             self._wealth = self.balance + abs(self._objective)  # calculate new wealth after new objective calculation
 
     def __str__(self):
-        class_str = '\n{}\naccount: {}\nbalance: {} ether\nobjective: {}\nwealth: {}\norder: {}\nbid: {} ether\ntrade: {}\ntrade accepted: {} ether\nallocation: {}'.format(
+        class_str = '\n{}\naccount: {}\nbalance: {} ether\nobjective: {}\nwealth: {}\norder: {}\nbid: {} ether\ntrade: {}\ntrade accepted: {} \nallocation: {}'.format(
             self._name,
             self._account_address,
             self.balance,
