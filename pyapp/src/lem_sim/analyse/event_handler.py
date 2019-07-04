@@ -23,3 +23,7 @@ class EventHandler(object):
     def filter_rejected_trade_event(self, from_block, to_block):
         event_filter = self._dealer_contract.contract.events.RejectedTrade.createFilter(fromBlock=from_block, toBlock=to_block)
         return event_filter.get_all_entries()
+    
+    def filter_deleted_order_event(self, from_block, to_block):
+        event_filter = self._dealer_contract.contract.events.DeletedOrder.createFilter(fromBlock=from_block, toBlock=to_block)
+        return event_filter.get_all_entries()
