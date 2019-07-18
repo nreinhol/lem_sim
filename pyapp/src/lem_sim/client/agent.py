@@ -15,7 +15,6 @@ class Agent(object):
         self._optimization_problem = None
         self._bundle_set = None
         self._bid = None
-        self._bill = None
         self._mkt_prices = None
         self._trade = None
         self._objective = None
@@ -76,20 +75,27 @@ class Agent(object):
     @optimization_problem.setter
     def optimization_problem(self, value):
         self._optimization_problem = value
-        self._objective = self._optimization_problem.solve().fun  # set initial objective
-        self._wealth = self.balance + abs(self._objective)  # set initial wealth
+        self._objective = self._optimization_problem.solve().fun
+        self._wealth = self.balance + abs(self._objective)
 
     ''' functions for contract communication '''
 
     def accept_trade(self):
-        trade = self._dealer_contract.contract.functions.acceptTrade(self._accept_trade).call({'from': self._account_address})
-        self._trade = utils.prepare_for_storing(trade)
+        if(self._accept_trade):
+            trade = self._dealer_contract.contract.functions.acceptTrade(self._accept_trade).call({'from': self._account_address})
+            self._trade = utils.prepare_for_storing(trade)
+
         self._dealer_contract.contract.functions.acceptTrade(self._accept_trade).transact({'from': self._account_address})
 
     def set_order(self):
         bundle_set = utils.prepare_for_sending(self._bundle_set)
         bid = utils.prepare_for_sending(self._bid)
-        prepayment = utils.from_ether_to_wei(self._bid)
+        
+        if(bid > 0):
+            prepayment = utils.from_ether_to_wei(self._bid)
+        else:
+            prepayment = 0
+
         self._dealer_contract.contract.functions.setOrder(bundle_set, bid, prepayment).transact({'from': self._account_address, 'value': prepayment})
 
     def get_mkt_prices(self):
@@ -123,6 +129,7 @@ class Agent(object):
             self._accept_trade = True
         else:
             self._accept_trade = False
+
 
     def add_trade_to_shared_resources(self):
         # only add trade to shared resources and recalculate objective and bill if trade accepted
