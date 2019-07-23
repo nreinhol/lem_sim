@@ -19,7 +19,7 @@ contract Dealer{
 
     // mapping from address to position in trades_accounts array
     // 0 means the address in not in the array
-    mapping (address => uint256) account_index; 
+    mapping (address => uint256) account_index;
     address[] public trades_accounts;
     mapping(address => int256[]) public trades;
     mapping(address => uint256) public bills;
@@ -77,7 +77,7 @@ contract Dealer{
 
     /*
     functions for trade handling
-    */ 
+    */
 
     function addToArray(address who) {
         if(!inArray(who)) {
@@ -119,7 +119,6 @@ contract Dealer{
             delete trades[msg.sender];
             emit RejectedTrade(msg.sender, trades[msg.sender], prepayments[msg.sender]);
         }
-        
     }
 
     /*
@@ -156,7 +155,7 @@ contract Dealer{
 
     /*
     getter and setter for mkt prices
-    */ 
+    */
 
     function setMktPrices(int256[] _mkt_prices) public onlyByOwner() {
         mkt_prices = _mkt_prices;

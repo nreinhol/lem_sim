@@ -2,6 +2,7 @@ import numpy as np
 
 from lem_sim import globalmemory as mem
 from lem_sim import linearoptimization as lp
+from lem_sim import utils
 from lem_sim import output
 
 
@@ -14,6 +15,8 @@ def main():
     # set initial inventory and market prices
     var.dealer.set_resource_inventory()
     var.dealer.set_mkt_prices()
+    
+    utils.wait_for_new_block(var)
 
     # set initial simulation parameter
     market_prices = var.dealer.mkt_prices
@@ -30,6 +33,8 @@ def main():
             agent.determine_bundle_attributes()
             agent.set_order()  # transact
 
+        utils.wait_for_new_block(var)
+
         var.dealer.get_orders()  # call
         var.dealer.create_mmp()
         var.dealer.solve_mmp()
@@ -38,10 +43,16 @@ def main():
         var.dealer.set_mkt_prices()  # transact
         var.dealer.set_mmp_attributes()  # transact
 
+        utils.wait_for_new_block(var)
+
         for agent in var.agent_pool:
             agent.verify_strong_duality()  # call
             agent.accept_trade()  # transact
             agent.add_trade_to_shared_resources()
+
+        utils.wait_for_new_block(var)
+    
+        var.latest_block = var.web3.eth.getBlock('latest')['number']
 
         var.dealer.recalculate_resource_inventory() # transact
 

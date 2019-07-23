@@ -96,7 +96,7 @@ class Agent(object):
         else:
             prepayment = 0
 
-        self._dealer_contract.contract.functions.setOrder(bundle_set, bid, prepayment).transact({'from': self._account_address, 'value': prepayment})
+        tx_hash = self._dealer_contract.contract.functions.setOrder(bundle_set, bid, prepayment).transact({'from': self._account_address, 'value': prepayment})
 
     def get_mkt_prices(self):
         mkt_prices = self._dealer_contract.contract.functions.getMktPrices().call()

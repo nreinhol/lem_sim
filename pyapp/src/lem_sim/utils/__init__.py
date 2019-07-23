@@ -7,3 +7,4 @@ from .contract_communication import from_wei_to_ether  # noqa
 from .order_handler import Orders  # noqa
 from .order_handler import OrderHandler  # noqa
 from .process_values import truncate_values_of_array  # noqa
+from .mining_observer import wait_for_new_block  # noqa
